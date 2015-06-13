@@ -1,0 +1,194 @@
+﻿@model FlightBoard.Web.Models.TeamModel
+
+@using Lib.Web.Mvc.JQuery.JqGrid;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="headerWrapper">
+    <ul class="tabedNav">
+        <li><a href="@Url.Action("Index","Team")">Search Teams</a></li>
+        <li class="active"><a href="@Url.Action("AssignTeam","Team")">Create Teams</a></li>
+    </ul>
+</div>
+<div class="itemSearchContaier">
+    <div class="itemSearchInnerContainer">
+        @using (Html.BeginForm("Save", "Team", FormMethod.Post, new { @id = "form1" }))
+        {
+            @Html.ValidationSummary(true)
+            <div class="assignTeam">
+                <div class="itemSearchTop">
+                    <div class="horizantalForm">
+                        <label>Team Name</label>
+                        @Html.TextBoxFor(x => x.TeamName)
+                        @Html.ValidationMessageFor(x => x.TeamName)
+                    </div>
+                    <div class="horizantalForm">
+                        <label>Team Leader</label>
+                        @Html.DropDownListFor(x => x.TeamLeadId, @Model.TeamLeadList, new {@class="select" })
+                    </div>
+                    <div class="horizantalForm">
+                        <label>Production From </label>
+                        <div class="calendarInput">
+                            @Html.TextBoxFor(x => x.TeamStartDate, "{0:MM/dd/yyyy}", new { @class = "TeamStartDate" })
+                            <span id="spanfrom" class="icon calendar"></span>@*@Html.ValidationMessageFor(x => x.TeamStartDate)*@
+                        </div>
+                    </div>
+                    <div class="horizantalForm">
+                        <label>Production To </label>
+                        <div class="calendarInput">
+                            @Html.TextBoxFor(x => x.TeamEndDate, "{0:MM/dd/yyyy}", new { @class = "TeamStartDate" })
+                            <span id="spanto" class="icon calendar"></span>@*@Html.ValidationMessageFor(x => x.TeamEndDate)*@
+                        </div>
+                    </div>
+                </div>
+                <div class="rightSideFields">
+                    <label>Team Members</label>
+                    <div class="fieldsWrapper">
+                        <div class="checkboxMain">
+                            @{int i = 1;
+                            foreach (var item in ViewBag.items)
+                            {
+                                <div class="checkbox">
+                                    <input type="checkbox" id="chkMember_@i" value="@item.UserId" name="radio-inline" />
+                                    <label for="chkMember_@i">@item.FirstName @item.LastName</label>
+                                </div>
+                                i++;
+                            }
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="btWrapper marB20"><input type="submit" value="Create Team"  /></div>
+            </div>
+        }
+    </div>
+</div>
+<script type="text/javascript">
+
+    $('#spanfrom').click(function () {
+        $('#TeamStartDate').datepicker('show');
+    });
+
+    $('#spanto').click(function () {
+        $('#TeamEndDate').datepicker('show');
+    });
+
+    $(document).ready(function () {
+
+        $("#TeamStartDate").datepicker({ dateFormat: 'mm/dd/yy' }).val('');
+
+        $("#TeamEndDate").datepicker({ dateFormat: 'mm/dd/yy' }).val('');
+
+        $("input#TeamStartDate").inputmask("99/99/9999", { placeholder: "MM/DD/YYYY", clearIncomplete: true });
+
+        $("input#TeamEndDate").inputmask("99/99/9999", { placeholder: "MM/DD/YYYY", clearIncomplete: true });
+
+        $("#form1").submit(function (e) {
+            e.preventDefault();
+            if ($('.checkboxMain div').find("input:checked").length > 0) {
+
+                if ($('#TeamName').val() == "") {
+                    alert("Please enter Team Name"); return false;
+                }
+                else if ($('#TeamLeadId').val() <= 0)
+                { alert("Please select Team Leader"); return false; }
+                else if ($('#TeamStartDate').val() == "")
+                { alert("Please select or enter Production From Date"); return false; }
+                else if ($('#TeamEndDate').val() == "")
+                { alert("Please select or enter Production To Date"); return false; }
+                else if (!ValidateStartDate())
+                { return false; }
+               
+
+                var teamInfo = new Object();
+                teamInfo.TeamName = $('#TeamName').val();
+                teamInfo.TeamLeadId = $('#TeamLeadId').val();
+                teamInfo.TeamStartDate = $('#TeamStartDate').val();
+                teamInfo.TeamEndDate = $('#TeamEndDate').val();
+
+                var TeammemberList1 = new Array();
+                $('.checkboxMain div').each(function () {
+                    if ($(this).find('input:checkbox').is(':checked')) {
+                        var teamMemberItem = new Object();
+                        teamMemberItem.TeamMemberId = $(this).find('input:checkbox').val();
+                        TeammemberList1.push(teamMemberItem);
+                    }
+                });
+                teamInfo.fb_TeamMembers = TeammemberList1;
+                $("")
+                $.ajax({
+                    url: "@Url.Action("Save", "Team")",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify({
+                        teamModel: teamInfo,
+                        StartDate: $("#TeamStartDate").val(),
+                        EndDate: $("#TeamEndDate").val(),
+                    }),
+                    type: 'POST',
+                    success: function (data) {
+                        if (data.status == "success") {
+                            alert(data.message);
+                            window.location = '@Url.Action("Index","Team")';
+                        }
+                        else {
+                            alert(data.data);
+                        }
+                    },
+                    error: function (data) {
+                        alert(data);
+                    }
+                });
+            }
+            else {
+                alert("Please select atleast a team member.");
+                return false;
+            }
+        });
+    });
+
+    function ValidateStartDate() {
+        SDate = $("#TeamStartDate").val().split('/')[1] + "/" + $("#TeamStartDate").val().split('/')[0] + "/" + $("#TeamStartDate").val().split('/')[2];
+        EDate = $("#TeamEndDate").val().split('/')[1] + "/" + $("#TeamEndDate").val().split('/')[0] + "/" + $("#TeamEndDate").val().split('/')[2];
+
+
+        var rtn = true;
+        if (SDate) {
+
+            //var today = new Date(GetCurrentDate().split('/').reverse().join('/')); //+ " " + GetCurrentDateTime() //new Date(); // It's returning with time.             
+            var sdattmp = new Date(SDate.split('/').reverse().join('/'));
+            //alert(SDate);
+            //// Compare with current Date.
+            //if (sdattmp < today) {
+            //    alert('Production From Date must be current or future date only.');
+            //    $("#TeamStartDate").val(GetCurrentDate());
+            //    rtn = false;
+            //}
+            // Compare with End Date.
+            if (EDate) {
+                var edattmp = new Date(EDate.split('/').reverse().join('/'));
+
+                if (sdattmp > edattmp) {
+                    alert('Production From Date must be same or earlier than Production To Date');
+                    rtn = false;
+                }
+            }
+
+        }
+        return rtn;
+    }
+
+
+
+    function GetCurrentDate() {
+        var ltoday = new Date();
+        var lMonth = (parseInt(ltoday.getMonth()) + 1);
+        var CurDate = ltoday.getDate() + "/" + ('0' + lMonth).slice(-2) + "/" + ltoday.getFullYear();
+        return CurDate;
+    }
+</script>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/inputmask")
+}

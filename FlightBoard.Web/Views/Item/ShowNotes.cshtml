@@ -1,0 +1,66 @@
+﻿@model FlightBoard.Web.Models.ItemModel
+@{
+    Layout = null;
+}
+
+<div class="popInner addBatch">
+    <div class="popclose"><a href="javascript:void(0)"></a></div>
+    <div class="horizantalForm">
+        <label>Notes</label>
+
+        <textarea id="notes">@Model.Notes</textarea>
+
+        <div class="btnWrapper">
+            <input type="button" class="button" value="Clear" onclick='Clearvalues();' />
+            @*<button class="btngrad" id="Clear"><span class="gray" onclick='Clearvalues();'>Clear</span></button>*@
+            <input type="button" class="button" value="Save" onclick='Save();' />
+            <input type="hidden" id ="hdnEventID" value="@Model.ItemEvent_intid" />
+            <input type="hidden" id="hdnItemID" value="@Model.ItemId" />
+            <input type="hidden" id="hdnID" value="@Model.ID" />
+        </div>
+    </div>
+
+</div>
+<script>
+    function Clearvalues() {
+        $("#notes").val('');
+    }
+    function Save()
+    {
+        var IteamInfo = new Object();
+        IteamInfo.EventId = $("#hdnEventID").val();
+        IteamInfo.ItemId = $("#hdnItemID").val();
+        IteamInfo.Notes = $("#notes").val();
+        $.ajax({
+            url: "@Url.Action("SaveNotes", "Item")",
+            type: 'Post',
+            contentType: "application/json",
+            data: JSON.stringify({
+                //itemModel: IteamInfo
+                Id: $("#hdnID").val(),
+                ItemId: $("#hdnItemID").val(),
+                EventId: $("#hdnEventID").val(),
+                Notes: $("#notes").val()
+            }),
+            success: function (data) {
+                var resultmsg;
+                if (data.result == "Fail") {
+                    var resultassign = confirm('Sure?');//confirm(data.message);
+                    if (resultassign) {
+                        resultmsg = true;
+                    }
+                    else {
+                        resultmsg = false;
+                    }
+                }
+                else if (data.result == "Success") {
+                    resultmsg = true;
+                    ClosePopup();
+                }
+                    
+            }
+        });
+    }
+
+
+</script>

@@ -1,0 +1,255 @@
+﻿@model FlightBoard.Web.Models.DashboardModel.ThirdMode
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Receipe</title>
+</head>
+<body>
+    @{
+        var firstModel = (List<FlightBoard.Web.Models.DashboardModel.FirtModel>)ViewBag.FirstModel;
+        var secondModel = (List<FlightBoard.Web.Models.DashboardModel.SecondModel>)ViewBag.SecondModel;
+    }
+    <div class="popInner  recipeDetailsPop" style="padding:25px 20px;width:100%;margin:0 auto;">
+        <div class="popclose "><a href="javascript:void(0)"></a></div>
+        
+            @if (firstModel.Count != 0 && secondModel.Count != 0)
+            {
+                <span class="eventBlock">
+                    <label>EventList ID:</label>
+                    @Html.TextBoxFor(model => model.EventId, new { style = "margin-right:15px;width:96px;padding-right:5px;padding-left:5px", @readonly = "readonly" })
+                </span>
+                <span class="eventBlock">
+                    <label>ItemID:</label>
+                    @Html.TextBoxFor(model => model.ItemId, new { style = "margin-right:15px;width:96px;padding-right:5px;padding-left:5px", @readonly = "readonly" })
+                </span>
+                <span class="eventBlock">
+                    <label>Quantity:</label>
+                    @Html.TextBoxFor(model => model.Quantity, new { style = "margin-right:15px;width:96px;padding-right:5px;padding-left:5px" })
+                </span>
+                @Html.HiddenFor(model => model.ItemId)
+                @Html.HiddenFor(model => model.AssemblageID)
+
+                <input type="submit" id="btnSubmit" value="Submit" onclick="SubmitClickEvent(@Model.EventId,@Model.ItemId,@Model.Quantity,@Model.ItemId)" style="padding-left:15px;padding-right:15px" />
+                <p align="left">
+                    <!--<a href="#" onclick="location.href='@Url.Action("Print","Dashboard", new { EventListId = Model.EventId, ItemId = Model.ItemId, Quantity = Model.Quantity, asid=Model.AssemblageID })'"><img class="printIcon" id="btnPrint" /></a>-->
+                    <a href="#" id="btnPrint"><span class="printIcon"></span></a>
+                </p>
+                <div class="recipeDetailsPopInner" style="padding-top:10px;width:97%;margin-bottom:15px;border-top:1px solid #ccc;">
+
+                    @{
+                var item = firstModel.FirstOrDefault();
+
+
+                <h1>@item.itemName</h1>
+                        <div class="recipeProduction" style="top: 13px">
+                            <table width="100%" cellspacing="0" border="0">
+                                <tbody>
+                                    <tr>
+                                        <td><span class="recipeProductionD">Production Recipe &amp; Date:</span></td>
+                                        <td><span>@item.ProdDate</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td align="right"><span class="recipeProductionD">Production Shift:</span></td>
+                                        <td align="left"><span>@item.ProdShift</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+                    <div class="recipePreDetails marT20" style="overflow: hidden;" tabindex="5000">
+                        <table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:15px !important">
+                            <tbody>
+                                <tr>
+                                    <th scope="col">Times</th>
+                                    <th scope="col">Temperatures</th>
+                                    <th scope="col">Production Amount</th>
+                                </tr>
+
+                                @{
+                var item1 = firstModel.FirstOrDefault();
+
+                <tr>
+                    <td>
+                        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tbody>
+                                <tr>
+                                    <td>Prep Time: <span class="darkTest recipeVal">@item1.PrepTime</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Cooking Time:<span class="darkTest  recipeVal">@item1.CookingTime</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>
+                        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tbody>
+                                <tr>
+                                    <td>Cooking: <span class="darkTest recipeVal">@item1.CookingTemp</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Internal: <span class="darkTest recipeVal">@item1.PrepTemp</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>
+                        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tbody>
+                                <tr>
+                                    <td>Yield: <span class="darkTest recipeVal">@item1.Yield</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Portions: <span class="darkTest recipeVal">@item1.Portions</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <h2 style="font-weight:600">Ingredients &amp; Instructions &amp; Quantity(@ViewBag.Quantity) </h2>
+                        <table cellpadding="0" cellspacing="0" border="0" id="chkSubItems" class="ingredientslist" width="100%">
+                            @{
+
+                var items = secondModel.ToList();
+                foreach (var item3 in items)
+                {
+                    <tr>
+                        @if (item3.subitemCount > 0)
+                        {
+                            <td><input type="checkbox" value="@item3.ComponentID" id="@item3.ComponentID" checked="checked" /></td>
+                            <td id="tdsubitems">
+
+                                <a style="color:blue" href="#" onclick="GetSubRecipeDetails(@Model.EventId, @Model.ItemId, @Model.Quantity,@item3.ComponentID)">@item3.IngriedentsName</a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>&nbsp;</td>
+                            <td>@item3.IngriedentsName</td>
+                        }
+                        <td>@item3.IngedientSize</td>
+                    </tr>
+                }
+                            }
+                        </table>
+                        <h3 style="font-weight:600;font-size:15px">Preparation</h3>
+                        @if (secondModel.Count > 0)
+{
+    foreach (var item4 in secondModel)
+    {
+        if (!string.IsNullOrEmpty(@item4.Note))
+        {
+            var note = item4.Note.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+            <ul class="ingredientsListNone" >
+                @foreach (var item5 in note)
+                {
+                    if (@item5 != "")
+                    {
+                        <li>
+                            @item5
+                        </li>
+                    }
+                }
+            </ul>
+        }
+    }
+}
+                        @{
+                if (@item1.AssemblageID != ViewBag.ItemId)
+                {
+                    <div class="buttonsCont">
+                        <a href="#" onclick="GetRecipeDetails(@Model.EventId, @Model.ItemId, @Model.Quantity,@Model.ItemId)" class="button">Back</a>
+                        @*@Html.ActionLink("Back", "Receipe", "Dashboard", new { EventListId = Model.EventId, ItemId = Model.ItemId, Quantity = Model.Quantity, asid = Model.ItemId }, new { @Title = "Fetch event details from FSS", @class = "button" })*@
+                    </div>
+                }
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div>No Records Found</div>
+            }
+        
+    </div>
+
+</body>
+</html>
+<script type="text/javascript">
+    if ($('#ItemId').val() != $('#AssemblageID').val()) {
+        $('#btnSubmit').hide();
+    }
+    else {
+        $('#btnSubmit').show();
+    }
+
+    $("#btnPrint").click(function () {
+        var selected = [];
+        var lstIds = "";
+        //var selected = new Array();
+        $('#chkSubItems tr td input[type=checkbox]').each(function () {
+            //alert($(this).is(":checked"));
+            if ($(this).is(":checked")) {
+                //alert($(this).attr('id'));
+                var ChkID = $(this).attr('id');
+                //ChkID = ChkID.replace("checkbox-", "")
+                selected.push(ChkID);
+                if (lstIds == "")
+                    lstIds = ChkID;
+                else
+                    lstIds += "," + ChkID;
+                //alert(selected);
+            }
+        });
+        //alert(lstIds);
+        window.location = "@Url.Action("Print", "Dashboard")" + "?EventListId=" +@Model.EventId +"&ItemId=" +@Model.ItemId +"&Quantity=" +@Model.Quantity +"&asid=" +@Model.AssemblageID +"&Items=" + lstIds;
+    });
+
+    function GetSubRecipeDetails(eventId, ItemId, Quantity, ComponentID) {
+        if (ItemId > 0 && eventId > 0) {
+            $.ajax({
+                url: "@Url.Action("Receipe", "Dashboard")",
+                contentType: "application/json",
+                type: 'Post',
+                data: JSON.stringify({
+                    itemId: ItemId,
+                    eventId: eventId,
+                    Quantity: Quantity,
+                    AssemblageID: ComponentID
+                }),
+                success: function (data) {
+                    $("#popup").html('');
+                    $("#popup").html(data);
+                    $('.popUp, .popOverlay').css('display', 'block');
+                },
+                error: function (e, textStatus, jqXHR) {
+                    alert(e);
+                }
+            });//end of Ajax
+
+        }
+    }
+
+    function SubmitClickEvent(eventId, ItemId, Quantity, ComponentID)
+    {
+        if ($("#Quantity").val() != "")
+        {
+            GetRecipeDetails(eventId, ItemId, $("#Quantity").val(), ComponentID);
+        }
+        else
+        {
+            alert("Please enter Quantity");
+        }
+        
+    }
+
+</script>
+

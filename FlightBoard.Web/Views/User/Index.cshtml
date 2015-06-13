@@ -1,0 +1,117 @@
+﻿@model IEnumerable<FlightBoard.Web.Models.UserModel>
+@using Lib.Web.Mvc.JQuery.JqGrid;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="headerWrapper userManage">
+    <h1>User Management</h1>
+
+</div>
+
+<div class="userGrid">
+
+    <div class="userGridlink">@Html.ActionLink("Create", "Create", "User", new { @class = "button" })</div>
+    <div class="gridPanel">
+        <div class="table-responsive rmfTable pull-left width100p">
+            <div class="jqGrid">
+                @{
+                    var grid = new JqGridHelper<FlightBoard.Web.Models.UserModel>("UsersJqGrid",
+                      dataType: JqGridDataTypes.Json,
+                      methodType: JqGridMethodTypes.Post,
+                      pager: true,
+                      rowsNumbers: true,
+                      rowsNumbersWidth: 35,
+                      rowsNumber: 10,
+                      rowsList: new List<int> { 5, 10, 15, 20 },
+                      sortingName: "UserId",
+                      sortingOrder: JqGridSortingOrders.Asc,
+                      url: Url.Action("Find"),
+                      viewRecords: true,
+                      caption: "",
+                      multiSelect: false,
+                      beforeRequest:"beforeRequest",
+                      topPager: false,
+                      autoWidth: true,
+                      sortable: true,
+                      //loadOnce: true,
+                      gridComplete: "OnUserGridComplete"
+                    ).FilterToolbar(new JqGridFilterToolbarOptions() { DefaultSearchOperator = JqGridSearchOperators.Cn, StringResult = true, AutoSearch = true, SearchOnEnter = false, GroupingOperator = JqGridSearchGroupingOperators.And })
+                    .Navigator(new JqGridNavigatorOptions() { Add = false, Delete = false, View = false, Edit = false, Refresh = false, Search = false }, searchActionOptions: new JqGridNavigatorSearchActionOptions() { AdvancedSearching = true, CloneSearchRowOnAdd = false });
+                }
+                @grid.GetHtml()
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+  
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        @grid.GetJavaScript()
+    });
+
+    function beforeRequest() {
+        $.blockUI();
+    }
+
+    function deleteUser(userId) {
+        var result = confirm("Are you sure you want to delete user?");
+        if (result == false) {
+            return;
+        }
+        $.ajax({
+            url: "@Url.Action("Delete", "User")",
+            contentType: "application/json",
+            type: "Post",
+            data: JSON.stringify({ id: userId }),
+            success: function (data) {
+                alert(data.message);
+                //if (data.status == 'success') {
+                //    alert(data.message);
+                //}
+                //else if (data.status == 'fail') {
+                //    alert(data.message);
+                //}
+                window.location.reload();
+            },
+            error: function (e, textStatus, jqXHR) {
+                alert("This user is already assigned to a team. Please unassign the user from the team to delete this user.");
+            }
+        });
+    }
+    function OnUserGridComplete() {
+        $('#UsersJqGrid_rn').html("SNo");
+        $('#alertmod_UsersJqGrid').hide();
+        $.unblockUI();
+        //$("#UsersJqGrid").setGridParam({ datatype: 'local' });
+    }
+
+    @*function deleteUser(userId) {
+        var result = confirm("Are you sure you want to delete user?");
+        if (result == false) {
+            return;
+        }
+        $.ajax({
+            cache: false,
+            url: '@Url.Content("~/User/Delete")',
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            type: "POST",
+            data: JSON.stringify({ id: userId }),
+            success: function (data) {
+                if (data.status != "fail") {
+                    // display error message.
+                    alert("User deleted successfully.");
+                }
+                window.location.reload();
+            },
+            error: function () {
+                alert("Internal error - Unable to delete user.");
+            }
+        });
+    }*@
+</script>

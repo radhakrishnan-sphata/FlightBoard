@@ -1,0 +1,60 @@
+﻿@model FlightBoard.Web.Models.LoginViewModel
+@*<script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>*@
+@{
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+    ViewBag.Title = "Log in";
+}
+@*<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#Clear').click()
+        {
+            debugger;
+            $("#UserName").val('');
+            $("#Password").val('');
+        }
+    });
+    </script>*@
+@using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    <ul>
+        <li><h3>Login</h3></li>
+        <li>
+            @Html.TextBoxFor(m => m.UserName, new { @class = "textbox", @placeholder = "Username" })
+            @Html.ValidationMessageFor(m => m.UserName)
+        </li>
+
+        <li>
+            @Html.PasswordFor(m => m.Password, new { @class = "textbox", @placeholder = "Password" })
+            @Html.ValidationMessageFor(m => m.Password)
+        </li>
+        @*<div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <div class="checkbox">
+                        @Html.CheckBoxFor(m => m.RememberMe)
+                        @Html.LabelFor(m => m.RememberMe)
+                    </div>
+                </div>
+            </div>*@
+        <li class="marB15 fl wid100P">
+            <input type="submit" value="Login" class="button fl medium " /> <input name="" type="reset" class="button medium fr" value="Reset" onclick="location.href='@Url.Action("Login", "Account")'" />
+        </li>
+        @*<li>
+        <input type="button" class="button fl" value="Clear" id="Clear"/>  
+    </li>*@
+        <li class="cb">
+            @Html.ActionLink("Forgot Password?", "ForgotPassword", "Account")
+        </li>
+        
+    </ul>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+
+}
+

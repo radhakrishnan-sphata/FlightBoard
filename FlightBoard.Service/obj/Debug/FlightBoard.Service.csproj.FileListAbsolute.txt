@@ -1,0 +1,16 @@
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\bin\Debug\FlightBoard.Service.dll.config
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\bin\Debug\FlightBoard.Service.dll
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\bin\Debug\FlightBoard.Service.pdb
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\bin\Debug\ClassLibrary1.dll
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\bin\Debug\EntityFramework.dll
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\bin\Debug\EntityFramework.SqlServer.dll
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\bin\Debug\FlightBoard.Data.dll
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\bin\Debug\Lib.Web.Mvc.dll
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\bin\Debug\log4net.dll
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\bin\Debug\ClassLibrary1.pdb
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\bin\Debug\FlightBoard.Data.pdb
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\bin\Debug\EntityFramework.xml
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\bin\Debug\EntityFramework.SqlServer.xml
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\obj\Debug\FlightBoard.Service.csprojResolveAssemblyReference.cache
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\obj\Debug\FlightBoard.Service.dll
+G:\Sphata\Projects\FlightBoard\FlightBoard\FlightBoard.Service\obj\Debug\FlightBoard.Service.pdb

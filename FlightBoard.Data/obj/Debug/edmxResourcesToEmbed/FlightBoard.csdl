@@ -1,0 +1,504 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="FlightBoardModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="AssignItem">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ItemId" Type="Int32" Nullable="false" />
+    <Property Name="EventId" Type="Int32" Nullable="false" />
+    <Property Name="Notes" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="fb_AssignedTeam" Relationship="Self.FK_fb_AssignedTeam_AssignItems" FromRole="AssignItems" ToRole="fb_AssignedTeam" />
+    <NavigationProperty Name="fb_ProductionDates" Relationship="Self.FK_fb_ProductionDates_AssignItems" FromRole="AssignItems" ToRole="fb_ProductionDates" />
+  </EntityType>
+  <EntityType Name="fb_AssignedTeam">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="AssignItemID" Type="Int32" Nullable="false" />
+    <Property Name="MemberID" Type="Int32" />
+    <Property Name="LeadID" Type="Int32" />
+    <Property Name="TeamID" Type="Int32" />
+    <NavigationProperty Name="AssignItem" Relationship="Self.FK_fb_AssignedTeam_AssignItems" FromRole="fb_AssignedTeam" ToRole="AssignItems" />
+  </EntityType>
+  <EntityType Name="fb_Batches">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="Color" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="fb_BatchItems" Relationship="Self.FK_fb_BatchItems_fb_Batches" FromRole="fb_Batches" ToRole="fb_BatchItems" />
+  </EntityType>
+  <EntityType Name="fb_BatchItems">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="BatchID" Type="Int32" Nullable="false" />
+    <Property Name="ItemID" Type="Int32" Nullable="false" />
+    <Property Name="EventID" Type="Int32" Nullable="false" />
+    <Property Name="IsSubItem" Type="Boolean" Nullable="false" />
+    <NavigationProperty Name="fb_Batches" Relationship="Self.FK_fb_BatchItems_fb_Batches" FromRole="fb_BatchItems" ToRole="fb_Batches" />
+  </EntityType>
+  <EntityType Name="fb_DeviceUnits">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="DeviceUnitName" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="fb_FlightBoardConfig" Relationship="Self.FK_fb_Schedulers_fb_SchedulerTemplates" FromRole="fb_DeviceUnits" ToRole="fb_FlightBoardConfig" />
+  </EntityType>
+  <EntityType Name="fb_Events">
+    <Key>
+      <PropertyRef Name="EventId" />
+    </Key>
+    <Property Name="Contract" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+    <Property Name="EventName" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+    <Property Name="EventDate" Type="DateTime" Precision="3" />
+    <Property Name="NoofItems" Type="Int32" />
+    <Property Name="TeamLead" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+    <Property Name="Description" Type="String" MaxLength="2048" FixedLength="false" Unicode="true" />
+    <Property Name="DateOfProduction" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+    <Property Name="UnitId" Type="Int32" />
+    <Property Name="UnitName" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+    <Property Name="MealName" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+    <Property Name="EventId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="FSSeventlist_intid" Type="Int32" />
+    <Property Name="Quantity" Type="Decimal" Precision="18" Scale="0" />
+  </EntityType>
+  <EntityType Name="fb_FlightBoardConfig">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TemplateID" Type="Int32" Nullable="false" />
+    <Property Name="NoofDays" Type="Int32" />
+    <Property Name="TransitionTime" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="EventStartDate" Type="DateTime" Precision="3" />
+    <Property Name="EventEndDate" Type="DateTime" Precision="3" />
+    <Property Name="ProductionFrom" Type="DateTime" Precision="3" />
+    <Property Name="ProductionTo" Type="DateTime" Precision="3" />
+    <Property Name="EventID" Type="Int32" />
+    <Property Name="DeviceUnitID" Type="Int32" Nullable="false" />
+    <Property Name="PrepAreaId" Type="Int32" />
+    <NavigationProperty Name="fb_DeviceUnits" Relationship="Self.FK_fb_Schedulers_fb_SchedulerTemplates" FromRole="fb_FlightBoardConfig" ToRole="fb_DeviceUnits" />
+  </EntityType>
+  <EntityType Name="fb_Items">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Item_intid" Type="Int32" Nullable="false" />
+    <Property Name="ItemEvent_intid" Type="Int32" Nullable="false" />
+    <Property Name="Quantity" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="ItemName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="IsSubItem" Type="Boolean" Nullable="false" />
+    <Property Name="UniQueItemIds" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="HasSubItem" Type="Boolean" />
+    <Property Name="PrepAreaId" Type="Int32" />
+    <Property Name="PrepAreaName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+    <Property Name="Notes" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="ItemImageFileName" Type="String" MaxLength="300" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="fb_ItemsStatus">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="StatusId" Type="Int32" Nullable="false" />
+    <Property Name="ItemId" Type="Int32" Nullable="false" />
+    <Property Name="EventId" Type="Int32" Nullable="false" />
+    <Property Name="TeamMemberID" Type="Int32" Nullable="false" />
+    <Property Name="LeadID" Type="Int32" Nullable="false" />
+    <Property Name="TeamID" Type="Int32" Nullable="false" />
+    <Property Name="ProductionDate" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="Notes" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="fb_Teams" Relationship="Self.FK_fb_ActionItems_fb_status" FromRole="fb_ItemsStatus" ToRole="fb_Teams" />
+    <NavigationProperty Name="fb_status" Relationship="Self.FK_fb_ItemsStatus_fb_status" FromRole="fb_ItemsStatus" ToRole="fb_status" />
+    <NavigationProperty Name="fb_Users" Relationship="Self.FK_fb_ItemsStatus_fb_Users" FromRole="fb_ItemsStatus" ToRole="fb_Users" />
+    <NavigationProperty Name="fb_Users1" Relationship="Self.FK_fb_ItemsStatus_fb_Users1" FromRole="fb_ItemsStatus" ToRole="fb_Users" />
+  </EntityType>
+  <EntityType Name="fb_ProductionDates">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="AssignItemID" Type="Int32" Nullable="false" />
+    <Property Name="ItemId" Type="Int32" Nullable="false" />
+    <Property Name="EventID" Type="Int32" Nullable="false" />
+    <Property Name="ProdcutionDate" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="StatusID" Type="Int32" />
+    <Property Name="Notes" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="AssignItem" Relationship="Self.FK_fb_ProductionDates_AssignItems" FromRole="fb_ProductionDates" ToRole="AssignItems" />
+    <NavigationProperty Name="fb_status" Relationship="Self.FK_fb_ProductionDates_fb_status" FromRole="fb_ProductionDates" ToRole="fb_status" />
+  </EntityType>
+  <EntityType Name="fb_RefreshTime">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="RefreshTime" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="NoOfNewRecords" Type="Int32" />
+  </EntityType>
+  <EntityType Name="fb_Roles">
+    <Key>
+      <PropertyRef Name="RoleId" />
+    </Key>
+    <Property Name="RoleId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="RoleName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+    <NavigationProperty Name="fb_Users" Relationship="Self.FK_fb_Users_fb_Roles" FromRole="fb_Roles" ToRole="fb_Users" />
+  </EntityType>
+  <EntityType Name="fb_SchedulerTemplates">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TemplateName" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="fb_status">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="StatusName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="fb_ItemsStatus" Relationship="Self.FK_fb_ItemsStatus_fb_status" FromRole="fb_status" ToRole="fb_ItemsStatus" />
+    <NavigationProperty Name="fb_ProductionDates" Relationship="Self.FK_fb_ProductionDates_fb_status" FromRole="fb_status" ToRole="fb_ProductionDates" />
+  </EntityType>
+  <EntityType Name="fb_TeamMembers">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TeamId" Type="Int32" Nullable="false" />
+    <Property Name="TeamMemberId" Type="Int32" Nullable="false" />
+    <NavigationProperty Name="fb_Teams" Relationship="Self.FK_fb_TeamMembers_fb_Teams" FromRole="fb_TeamMembers" ToRole="fb_Teams" />
+    <NavigationProperty Name="fb_Users" Relationship="Self.FK_fb_TeamMembers_fb_Users" FromRole="fb_TeamMembers" ToRole="fb_Users" />
+  </EntityType>
+  <EntityType Name="fb_Teams">
+    <Key>
+      <PropertyRef Name="TeamId" />
+    </Key>
+    <Property Name="TeamId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TeamName" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="TeamLeadId" Type="Int32" Nullable="false" />
+    <Property Name="TeamStartDate" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="TeamEndDate" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="IsActive" Type="Boolean" Nullable="false" />
+    <Property Name="CreatedDate" Type="DateTime" Precision="3" />
+    <Property Name="CreatedBy" Type="Int32" />
+    <Property Name="UpdatedDate" Type="DateTime" Precision="3" />
+    <Property Name="UpdatedBy" Type="Int32" />
+    <NavigationProperty Name="fb_ItemsStatus" Relationship="Self.FK_fb_ActionItems_fb_status" FromRole="fb_Teams" ToRole="fb_ItemsStatus" />
+    <NavigationProperty Name="fb_TeamMembers" Relationship="Self.FK_fb_TeamMembers_fb_Teams" FromRole="fb_Teams" ToRole="fb_TeamMembers" />
+    <NavigationProperty Name="fb_Users" Relationship="Self.FK_fb_Teams_fb_Users" FromRole="fb_Teams" ToRole="fb_Users" />
+  </EntityType>
+  <EntityType Name="fb_Users">
+    <Key>
+      <PropertyRef Name="UserId" />
+    </Key>
+    <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="FirstName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="LastName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="UserName" Type="String" MaxLength="254" FixedLength="false" Unicode="false" />
+    <Property Name="SSN" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+    <Property Name="RoleId" Type="Int32" Nullable="false" />
+    <Property Name="Password" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="CreatedDate" Type="DateTime" Precision="3" />
+    <Property Name="UpdatedDate" Type="DateTime" Precision="3" />
+    <Property Name="IsActive" Type="Boolean" />
+    <Property Name="CreatedBy" Type="Int32" />
+    <Property Name="UpdatedBy" Type="Int32" />
+    <NavigationProperty Name="fb_ItemsStatus" Relationship="Self.FK_fb_ItemsStatus_fb_Users" FromRole="fb_Users" ToRole="fb_ItemsStatus" />
+    <NavigationProperty Name="fb_ItemsStatus1" Relationship="Self.FK_fb_ItemsStatus_fb_Users1" FromRole="fb_Users" ToRole="fb_ItemsStatus" />
+    <NavigationProperty Name="fb_Roles" Relationship="Self.FK_fb_Users_fb_Roles" FromRole="fb_Users" ToRole="fb_Roles" />
+    <NavigationProperty Name="fb_TeamMembers" Relationship="Self.FK_fb_TeamMembers_fb_Users" FromRole="fb_Users" ToRole="fb_TeamMembers" />
+    <NavigationProperty Name="fb_Teams" Relationship="Self.FK_fb_Teams_fb_Users" FromRole="fb_Users" ToRole="fb_Teams" />
+  </EntityType>
+  <EntityType Name="vw_GetAllAssignedItemDetails">
+    <Key>
+      <PropertyRef Name="Id" />
+      <PropertyRef Name="ItemId" />
+      <PropertyRef Name="EventId" />
+      <PropertyRef Name="ProdcutionDate" />
+      <PropertyRef Name="StatusID" />
+      <PropertyRef Name="FirstName" />
+      <PropertyRef Name="LastName" />
+      <PropertyRef Name="UserId" />
+      <PropertyRef Name="ItemName" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" />
+    <Property Name="ItemId" Type="Int32" Nullable="false" />
+    <Property Name="EventId" Type="Int32" Nullable="false" />
+    <Property Name="ProdcutionDate" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="StatusID" Type="Int32" Nullable="false" />
+    <Property Name="StatusName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="FirstName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="LastName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="UserId" Type="Int32" Nullable="false" />
+    <Property Name="MemberID" Type="Int32" />
+    <Property Name="LeadID" Type="Int32" />
+    <Property Name="TeamID" Type="Int32" />
+    <Property Name="ItemName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="Quantity" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="EventName" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+    <Property Name="Contract" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+    <Property Name="eventQuantity" Type="Decimal" Precision="18" Scale="0" />
+    <Property Name="Notes" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="AssignedNotes" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="EventDate" Type="DateTime" Precision="3" />
+    <Property Name="NoofItems" Type="Int32" />
+    <Property Name="UnitName" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+    <Property Name="UnitId" Type="Int32" />
+  </EntityType>
+  <Association Name="FK_fb_AssignedTeam_AssignItems">
+    <End Role="AssignItems" Type="Self.AssignItem" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="fb_AssignedTeam" Type="Self.fb_AssignedTeam" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="AssignItems">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="fb_AssignedTeam">
+        <PropertyRef Name="AssignItemID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_fb_ProductionDates_AssignItems">
+    <End Role="AssignItems" Type="Self.AssignItem" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="fb_ProductionDates" Type="Self.fb_ProductionDates" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="AssignItems">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="fb_ProductionDates">
+        <PropertyRef Name="AssignItemID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_fb_BatchItems_fb_Batches">
+    <End Role="fb_Batches" Type="Self.fb_Batches" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="fb_BatchItems" Type="Self.fb_BatchItems" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="fb_Batches">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="fb_BatchItems">
+        <PropertyRef Name="BatchID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_fb_Schedulers_fb_SchedulerTemplates">
+    <End Role="fb_DeviceUnits" Type="Self.fb_DeviceUnits" Multiplicity="1" />
+    <End Role="fb_FlightBoardConfig" Type="Self.fb_FlightBoardConfig" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="fb_DeviceUnits">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="fb_FlightBoardConfig">
+        <PropertyRef Name="DeviceUnitID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_fb_ActionItems_fb_status">
+    <End Role="fb_Teams" Type="Self.fb_Teams" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="fb_ItemsStatus" Type="Self.fb_ItemsStatus" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="fb_Teams">
+        <PropertyRef Name="TeamId" />
+      </Principal>
+      <Dependent Role="fb_ItemsStatus">
+        <PropertyRef Name="TeamID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_fb_ItemsStatus_fb_status">
+    <End Role="fb_status" Type="Self.fb_status" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="fb_ItemsStatus" Type="Self.fb_ItemsStatus" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="fb_status">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="fb_ItemsStatus">
+        <PropertyRef Name="StatusId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_fb_ItemsStatus_fb_Users">
+    <End Role="fb_Users" Type="Self.fb_Users" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="fb_ItemsStatus" Type="Self.fb_ItemsStatus" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="fb_Users">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="fb_ItemsStatus">
+        <PropertyRef Name="LeadID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_fb_ItemsStatus_fb_Users1">
+    <End Role="fb_Users" Type="Self.fb_Users" Multiplicity="1" />
+    <End Role="fb_ItemsStatus" Type="Self.fb_ItemsStatus" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="fb_Users">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="fb_ItemsStatus">
+        <PropertyRef Name="TeamMemberID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_fb_ProductionDates_fb_status">
+    <End Role="fb_status" Type="Self.fb_status" Multiplicity="0..1" />
+    <End Role="fb_ProductionDates" Type="Self.fb_ProductionDates" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="fb_status">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="fb_ProductionDates">
+        <PropertyRef Name="StatusID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_fb_Users_fb_Roles">
+    <End Role="fb_Roles" Type="Self.fb_Roles" Multiplicity="1" />
+    <End Role="fb_Users" Type="Self.fb_Users" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="fb_Roles">
+        <PropertyRef Name="RoleId" />
+      </Principal>
+      <Dependent Role="fb_Users">
+        <PropertyRef Name="RoleId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_fb_TeamMembers_fb_Teams">
+    <End Role="fb_Teams" Type="Self.fb_Teams" Multiplicity="1" />
+    <End Role="fb_TeamMembers" Type="Self.fb_TeamMembers" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="fb_Teams">
+        <PropertyRef Name="TeamId" />
+      </Principal>
+      <Dependent Role="fb_TeamMembers">
+        <PropertyRef Name="TeamId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_fb_TeamMembers_fb_Users">
+    <End Role="fb_Users" Type="Self.fb_Users" Multiplicity="1" />
+    <End Role="fb_TeamMembers" Type="Self.fb_TeamMembers" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="fb_Users">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="fb_TeamMembers">
+        <PropertyRef Name="TeamMemberId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_fb_Teams_fb_Users">
+    <End Role="fb_Users" Type="Self.fb_Users" Multiplicity="1" />
+    <End Role="fb_Teams" Type="Self.fb_Teams" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="fb_Users">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="fb_Teams">
+        <PropertyRef Name="TeamLeadId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="FlightBoardEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="AssignItems" EntityType="Self.AssignItem" />
+    <EntitySet Name="fb_AssignedTeam" EntityType="Self.fb_AssignedTeam" />
+    <EntitySet Name="fb_Batches" EntityType="Self.fb_Batches" />
+    <EntitySet Name="fb_BatchItems" EntityType="Self.fb_BatchItems" />
+    <EntitySet Name="fb_DeviceUnits" EntityType="Self.fb_DeviceUnits" />
+    <EntitySet Name="fb_Events" EntityType="Self.fb_Events" />
+    <EntitySet Name="fb_FlightBoardConfig" EntityType="Self.fb_FlightBoardConfig" />
+    <EntitySet Name="fb_Items" EntityType="Self.fb_Items" />
+    <EntitySet Name="fb_ItemsStatus" EntityType="Self.fb_ItemsStatus" />
+    <EntitySet Name="fb_ProductionDates" EntityType="Self.fb_ProductionDates" />
+    <EntitySet Name="fb_RefreshTime" EntityType="Self.fb_RefreshTime" />
+    <EntitySet Name="fb_Roles" EntityType="Self.fb_Roles" />
+    <EntitySet Name="fb_SchedulerTemplates" EntityType="Self.fb_SchedulerTemplates" />
+    <EntitySet Name="fb_status" EntityType="Self.fb_status" />
+    <EntitySet Name="fb_TeamMembers" EntityType="Self.fb_TeamMembers" />
+    <EntitySet Name="fb_Teams" EntityType="Self.fb_Teams" />
+    <EntitySet Name="fb_Users" EntityType="Self.fb_Users" />
+    <EntitySet Name="vw_GetAllAssignedItemDetails" EntityType="Self.vw_GetAllAssignedItemDetails" />
+    <AssociationSet Name="FK_fb_AssignedTeam_AssignItems" Association="Self.FK_fb_AssignedTeam_AssignItems">
+      <End Role="AssignItems" EntitySet="AssignItems" />
+      <End Role="fb_AssignedTeam" EntitySet="fb_AssignedTeam" />
+    </AssociationSet>
+    <AssociationSet Name="FK_fb_ProductionDates_AssignItems" Association="Self.FK_fb_ProductionDates_AssignItems">
+      <End Role="AssignItems" EntitySet="AssignItems" />
+      <End Role="fb_ProductionDates" EntitySet="fb_ProductionDates" />
+    </AssociationSet>
+    <AssociationSet Name="FK_fb_BatchItems_fb_Batches" Association="Self.FK_fb_BatchItems_fb_Batches">
+      <End Role="fb_Batches" EntitySet="fb_Batches" />
+      <End Role="fb_BatchItems" EntitySet="fb_BatchItems" />
+    </AssociationSet>
+    <AssociationSet Name="FK_fb_Schedulers_fb_SchedulerTemplates" Association="Self.FK_fb_Schedulers_fb_SchedulerTemplates">
+      <End Role="fb_DeviceUnits" EntitySet="fb_DeviceUnits" />
+      <End Role="fb_FlightBoardConfig" EntitySet="fb_FlightBoardConfig" />
+    </AssociationSet>
+    <AssociationSet Name="FK_fb_ActionItems_fb_status" Association="Self.FK_fb_ActionItems_fb_status">
+      <End Role="fb_Teams" EntitySet="fb_Teams" />
+      <End Role="fb_ItemsStatus" EntitySet="fb_ItemsStatus" />
+    </AssociationSet>
+    <AssociationSet Name="FK_fb_ItemsStatus_fb_status" Association="Self.FK_fb_ItemsStatus_fb_status">
+      <End Role="fb_status" EntitySet="fb_status" />
+      <End Role="fb_ItemsStatus" EntitySet="fb_ItemsStatus" />
+    </AssociationSet>
+    <AssociationSet Name="FK_fb_ItemsStatus_fb_Users" Association="Self.FK_fb_ItemsStatus_fb_Users">
+      <End Role="fb_Users" EntitySet="fb_Users" />
+      <End Role="fb_ItemsStatus" EntitySet="fb_ItemsStatus" />
+    </AssociationSet>
+    <AssociationSet Name="FK_fb_ItemsStatus_fb_Users1" Association="Self.FK_fb_ItemsStatus_fb_Users1">
+      <End Role="fb_Users" EntitySet="fb_Users" />
+      <End Role="fb_ItemsStatus" EntitySet="fb_ItemsStatus" />
+    </AssociationSet>
+    <AssociationSet Name="FK_fb_ProductionDates_fb_status" Association="Self.FK_fb_ProductionDates_fb_status">
+      <End Role="fb_status" EntitySet="fb_status" />
+      <End Role="fb_ProductionDates" EntitySet="fb_ProductionDates" />
+    </AssociationSet>
+    <AssociationSet Name="FK_fb_Users_fb_Roles" Association="Self.FK_fb_Users_fb_Roles">
+      <End Role="fb_Roles" EntitySet="fb_Roles" />
+      <End Role="fb_Users" EntitySet="fb_Users" />
+    </AssociationSet>
+    <AssociationSet Name="FK_fb_TeamMembers_fb_Teams" Association="Self.FK_fb_TeamMembers_fb_Teams">
+      <End Role="fb_Teams" EntitySet="fb_Teams" />
+      <End Role="fb_TeamMembers" EntitySet="fb_TeamMembers" />
+    </AssociationSet>
+    <AssociationSet Name="FK_fb_TeamMembers_fb_Users" Association="Self.FK_fb_TeamMembers_fb_Users">
+      <End Role="fb_Users" EntitySet="fb_Users" />
+      <End Role="fb_TeamMembers" EntitySet="fb_TeamMembers" />
+    </AssociationSet>
+    <AssociationSet Name="FK_fb_Teams_fb_Users" Association="Self.FK_fb_Teams_fb_Users">
+      <End Role="fb_Users" EntitySet="fb_Users" />
+      <End Role="fb_Teams" EntitySet="fb_Teams" />
+    </AssociationSet>
+    <FunctionImport Name="ProcGetEventStatusByProductionDate" ReturnType="Collection(FlightBoardModel.ProcGetEventStatusByProductionDate_Result)">
+      <Parameter Name="ProductionDate" Mode="In" Type="DateTime" />
+    </FunctionImport>
+  </EntityContainer>
+  <ComplexType Name="ProcGetEventStatusByProductionDate_Result">
+    <Property Type="Int32" Name="EventId" Nullable="true" />
+    <Property Type="String" Name="ContractID" Nullable="true" MaxLength="200" />
+    <Property Type="Int32" Name="TotalItemCount" Nullable="true" />
+    <Property Type="Int32" Name="TotalCompletedItemsCount" Nullable="true" />
+  </ComplexType>
+</Schema>

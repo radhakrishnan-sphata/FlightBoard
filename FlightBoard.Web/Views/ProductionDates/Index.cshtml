@@ -1,0 +1,159 @@
+﻿@model IEnumerable<FlightBoard.Web.Models.ProductionDatesModel>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "";
+    }
+
+
+
+    @Html.AntiForgeryToken()
+
+    <div class="popinner addbatch recipedetailspop">
+        <h1>Add Production Date</h1>
+        <div class="popclose"><a href="javascript:void(0)"></a></div>
+        @Html.ValidationSummary(true)
+
+        <div class="horizantalForm">
+            
+            <label>Production Date</label>
+            <div class="calendarInput">
+                
+                @Html.TextBoxFor(x => Model.FirstOrDefault().ProductionDate, "{0:MM/dd/yyyy}", new { @value = DateTime.Now.ToShortDateString(), @class = "TeamStartDate" })
+                
+                
+                <input type="hidden" value="@ViewBag.ItemId" id="hdnItemId" />
+                <input type="hidden" value="@ViewBag.EventId" id="hdnEventId" />
+                <span id="spanfromTextBox" class="icon calendar"></span>
+            </div>
+            <button class="btngrad " onclick="AddProductionDate();"><span class="green">Add</span></button>
+            <button class="btngrad "><span class="red">Cancel</span></button>
+            <div id="boxscroll3" class="recipePreDetails" style="overflow: hidden;" tabindex="5000">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" class="ui-jqgrid-btable" id="tblProductionDates">
+                    <tr class="ui-jqgrid-labels">
+                        <th class="ui-state-default ui-th-column ui-th-ltr" align="left"><div class="ui-jqgrid-htable ui-jqgrid-sortable">Item Name</div></th>
+                        <th class="ui-state-default ui-th-column ui-th-ltr" align="right"><div class="ui-jqgrid-htable ui-jqgrid-sortable">Actions</div></th>
+                    </tr>
+                    @foreach(var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @item.ProductionDate 
+                            </td>
+                            <td align="right"><a href="#" onclick="DeleteProductionDate(@item.ID)" class="edit-user"><span class="icon-delete"></span></a></td>
+                       </tr>
+                    }
+                </table>
+                <div class="btnWrapper">
+                    <button class="btngrad"><span class="green">Save</span></button>
+                </div>
+            </div>
+            </div>
+
+    </div>
+    @*<div class="userGrid">
+        <div class="gridPanel">
+            <div class="table-responsive rmfTable pull-left width100p">
+                <div class="jqGrid">
+                    @{
+    var gridProd = new JqGridHelper<FlightBoard.Web.Models.ProductionDatesModel>("ProductionDatesJqGrid",
+                                      dataType: JqGridDataTypes.Json,
+                                      methodType: JqGridMethodTypes.Post,
+                                      pager: true,
+                                      rowsNumbers: true,
+                                      rowsNumbersWidth: 35,
+                                      rowsNumber: 5,
+                                      rowsList: new List<int> { 5, 10, 15, 20 },
+                                      sortingName: "ItemId",
+                                      sortingOrder: JqGridSortingOrders.Asc,
+                                      url: Url.Action("Find"),
+                                      viewRecords: true,
+                                      caption: "",
+                                      multiSelect: true,
+                                      topPager: false,
+                                      autoWidth: true,
+                                      shrinkToFit: true,
+                                      postData: new { EventId = Model.EventId, ItemList = string.Join(",", Model.ItemList.Select(x => x.Key).ToArray()) }
+                                    ).FilterToolbar(new JqGridFilterToolbarOptions() { DefaultSearchOperator = JqGridSearchOperators.Cn, StringResult = true, AutoSearch = false, SearchOnEnter = false, GroupingOperator = JqGridSearchGroupingOperators.And })
+                                    .Navigator(new JqGridNavigatorOptions() { Add = false, Delete = false, View = false, Edit = false, Refresh = false, Search = false }, searchActionOptions: new JqGridNavigatorSearchActionOptions() { AdvancedSearching = true, CloneSearchRowOnAdd = false });
+                    }
+                    @gridProd.GetHtml()
+                </div>
+            </div>
+        </div>
+    </div>*@
+   
+
+        <script type="text/javascript">
+
+    $(document).ready(function () {
+
+
+        $("#boxscroll3").mCustomScrollbar({ scrollInertia: 0, theme: "dark-thick" });
+        //$("#boxscroll3").getNiceScroll().resize();
+
+        $("#ProductionDate").datepicker({ dateFormat: 'MM/dd/yy' }).val('');
+
+        $('#spanfromTextBox').click(function () {
+            $('#ProductionDate').datepicker('show');
+        });
+    });
+    $(window).resize(function () {
+        var winH = $(window).height();
+        var popHeight = $('.recipeDetailsPop').height();
+        var popHei = popHeight - 70;
+        var winHei = winH - 150;
+
+        if (popHeight < winHei) {
+
+            $('#boxscroll3').css('height', popHei)
+        }
+        else {
+
+            $('#boxscroll3').css('height', winHei)
+        }
+        //$("#boxscroll3").getNiceScroll().resize();
+    });
+
+    function AddProductionDate() {
+        var IteamInfo = new Object();
+        IteamInfo.ProductionDate = $('#ProductionDate').val();
+        IteamInfo.ItemId = $('#hdnItemId').val();
+        IteamInfo.EventId = $('#hdnEventId').val();
+        $.ajax({
+            url: "@Url.Action("Add")",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+                productionModel: IteamInfo
+            }),
+            success: function (response) {
+                var html = "<tr><td>" + response.productionDate + "</td><td align='right'> <a href='#' onclick=" + DeleteProductionDate(response.Id) + " class='edit-user'><span class='icon-delete'></span></a></td></tr>";
+                $('#tblProductionDates tr:last').after(html);
+            },
+
+        });
+    }
+    function DeleteProductionDate(id) {
+        var IteamInfo = new Object();
+        alert($('#hdnEventId').val());
+        IteamInfo.ProductionDate = $('#ProductionDate').val();
+        IteamInfo.ItemId = $('#hdnItemId').val();
+        IteamInfo.EventId = $('#hdnEventId').val();
+        IteamInfo.ID = id;
+        $.ajax({
+            url: "@Url.Action("Delete")",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+                productionModel: IteamInfo
+            }),
+            success: function (response) {
+                //alert(response.ListProductionModel[0].ItemId);
+
+            },
+
+        });
+    }
+
+    </script>

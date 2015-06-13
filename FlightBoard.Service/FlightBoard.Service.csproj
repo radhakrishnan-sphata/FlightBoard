@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BFA9A836-C745-4CBD-9BC3-F90C0F0DABFB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FlightBoard.Service</RootNamespace>
+    <AssemblyName>FlightBoard.Service</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Lib.Web.Mvc">
+      <HintPath>..\FlightBoard.Data\bin\Debug\Lib.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity.Design" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Business\AssignedTeamService.cs" />
+    <Compile Include="Business\AssignItemService.cs" />
+    <Compile Include="Business\BatchItemService.cs" />
+    <Compile Include="Business\BatchService.cs" />
+    <Compile Include="Business\BusinessServiceBase.cs" />
+    <Compile Include="Business\DataModel\fb_AssignItemList.cs" />
+    <Compile Include="Business\DataModel\fb_DistinctItemNames.cs" />
+    <Compile Include="Business\DataModel\fb_EventStatusModel.cs" />
+    <Compile Include="Business\DataModel\fb_ItemsActionStatus_View.cs" />
+    <Compile Include="Business\DataModel\fb_ItemsStatusList.cs" />
+    <Compile Include="Business\DataModel\fb_ItemStatusCount.cs" />
+    <Compile Include="Business\DataModel\fb_Items_Data.cs" />
+    <Compile Include="Business\DataModel\fb_ProductionDates_Data.cs" />
+    <Compile Include="Business\DataModel\fb_Teams_Data.cs" />
+    <Compile Include="Business\DataModel\FlighBoardConfigureListModel.cs" />
+    <Compile Include="Business\DeviceUnitsService.cs" />
+    <Compile Include="Business\EventsService.cs" />
+    <Compile Include="Business\FlightBoardConfigService.cs" />
+    <Compile Include="Business\IBusinessServiceBase.cs" />
+    <Compile Include="Business\ItemsService.cs" />
+    <Compile Include="Business\ItemsStatusService.cs" />
+    <Compile Include="Business\ProductionDateService.cs" />
+    <Compile Include="Business\RefreshService.cs" />
+    <Compile Include="Business\RoleService.cs" />
+    <Compile Include="Business\StatusService.cs" />
+    <Compile Include="Business\TeamMemberService.cs" />
+    <Compile Include="Business\TeamService.cs" />
+    <Compile Include="Business\UserService.cs" />
+    <Compile Include="Business\ViewItemsService.cs" />
+    <Compile Include="Class1.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ClassLibrary1\FlightBoard.Core.csproj">
+      <Project>{91a26751-984c-4dae-9d26-9e1b1272960b}</Project>
+      <Name>FlightBoard.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FlightBoard.Data\FlightBoard.Data.csproj">
+      <Project>{2980c054-ac31-4fb0-a395-ea7836ecfadb}</Project>
+      <Name>FlightBoard.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

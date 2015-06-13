@@ -1,0 +1,184 @@
+﻿@model FlightBoard.Web.Models.ItemModel
+@{
+    Layout = "";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="popInner addNotes">
+    <h1>Add Team Members</h1>
+    <div class="popclose"><a href="javascript:void(0)"></a></div>
+    @Html.ValidationSummary(true)
+      
+    <div class="horizantalForm">
+        <div class="teamMembersWrapper">
+            <div class="left">
+                <h2>Teams</h2>
+                <div class="searchWrapper">
+                    @*<input type="text" value="Search">*@
+                    @Html.TextBox("txtSearch","", new { @class = "textbox", @placeholder = "Search" })
+                    <button class="btnSearch" onclick="SearchTeams();"><i></i>Search</button>
+
+                </div>
+                <div class="">
+                    <div id="dvteams" class="fieldsWrapper">
+                        @{int j = 1;
+                        if (Model.Teamlist.Count > 0)
+                        {
+                            foreach (var item in Model.Teamlist)
+                            {
+                                var cheked = j == 1 ? "checked=checked" : "";
+                                <div class="radio">
+                                    <input type="radio" id="rdTeams_@j" value="@item.Key" onclick="GetTeammembers(@item.Key)" name="radioteams" teamName="@item.Value" />
+                                    <label for="rdTeams_@j">@item.Value</label>
+                                </div>
+                                j++;
+                            }
+                        }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="right">
+                <h2>Team Members</h2>
+                <div class="fieldsWrapper">
+                    <div class="fieldsWrapperInner">
+                        <div id="dvteamdetails"></div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="btnWrapper">
+            <button onclick="GetSelectedMembers()" id="btnAddMembers" class="button green">Add</button>
+        </div>
+
+    </div>
+
+
+    
+</div>
+
+
+<script type="text/javascript">
+
+    function SearchTeams()
+    {
+        $('#dvteams div input[type=radio]').each(function () {
+            $(this).prop('checked', false);
+            $(this).parent().attr("style", "display:block");
+        });
+        $("#dvteamdetails").html('');
+
+        //alert($("#txtSearch").val());
+        $('#dvteams div input[type=radio]').each(function () {
+            //alert($(this).attr('teamName'));
+            if ($(this).attr('teamName').toLowerCase().indexOf($("#txtSearch").val().toLowerCase()) < 0)
+            {
+                //alert($(this).parent().prop("tagName"));
+                $(this).parent().attr("style", "display:none");
+            }
+        });
+
+    }
+
+    function GetTeammembers(teamId) {
+        $.ajax({
+            url: "@Url.Action("GetTeammembersdetails", "Item")",
+            contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify({ TeamId: teamId }),
+        type: 'POST',
+        success: function (data) {
+            $("#dvteamdetails").html('');
+            var tlname = [];
+            var divsubmaintag = "<div class='checkbox'><div id='dvTM' class='checkboxGroup'>";
+            var i = 1;
+            var divtl = '';
+            var checked = '';
+            $.each(data, function (index, value) {
+                if (tlname.indexOf(value.TeamLeadId) < 0) {
+                    divtl = "<div id='dvTL' class='wid100P fl radioMain'><div class='checkbox'><input onclick='return false;' checked='checked' type='checkbox' id='rdTL_" + i + "' value='" +
+                        value.TeamLeadId + "' name='radioTL' /><label for='rdTL_" + i + "'>" + value.TeamLeadName + "</label></div></div>";
+                }
+                if (i == 1)
+                    checked = "checked = checked";
+                else
+                    checked = '';
+                var divsubtm = "<div class='checkbox'><input type='checkbox' id='rdTM_" + i + "'" + checked + " value='" + value.TeamMemberId + "' name='radioTM' mName='" + value.TeamMemberName + "' leadID='" + value.TeamLeadId + "' teamID='" + value.TeamId + "'  /><label for='rdTM_" +
+                    i + "'>" + value.TeamMemberName + "</label></div>"
+                divsubmaintag = divsubmaintag + divsubtm;
+                i++;
+                tlname.push(value.TeamLeadId);
+            });
+            divsubmaintag += "</div></div>";
+            $("#dvteamdetails").append(divtl);
+            $("#dvteamdetails").append(divsubmaintag);
+        },
+        error: function (e, textStatus, jqXHR) {
+            alert(textStatus);
+        }
+    });
+
+    }
+
+    function GetSelectedMembers() {
+        var MembersList = [];
+        $('#dvTM input[type=checkbox]').each(function () {
+            if ($(this).is(":checked")) {
+
+                var tempteamId = 0;
+                var tempTLId = 0;
+                var tempTMId = 0;
+                var tempTMName = '';
+
+                tempteamId = $(this).attr('teamID');
+                tempTLId = $(this).attr('leadID');
+                tempTMId = $(this).val();
+                tempTMName = $(this).attr('mName');
+
+                var o = new Object();
+                var k = $(this).attr('value');
+                o['tempteamId'] = tempteamId;
+                o['tempTLId'] = tempTLId;
+                o['tempTMId'] = tempTMId;
+                o['tempTMName'] = tempTMName;
+                MembersList.push(o);
+            }
+        });
+        
+        if (MembersList.length > 0) {
+            $('.popUp, .popOverlay').css('display', 'none');
+            PassSelectedMembers(MembersList);
+        }
+        else {
+            alert("Please select atleast one member to assign.");
+        }
+    }
+
+    function GetSelectedMembers_old() {
+
+        var tempteamId = 0;
+        var tempTLId = 0;
+        var tempTMId = 0;
+        var tempTMName = '';
+
+        tempteamId = $('input[name=radioteams]:checked').val();
+        tempTLId = $('input[name=radioTL]:checked').val();
+        tempTMId = $('input[name=radioTM]:checked').val();
+        tempTMName = $('input[name=radioTM]:checked').attr('mName');
+
+        if (tempteamId > 0 && tempTLId > 0 && tempTMId > 0) {
+            //alert(tempTMId);
+            $('.popUp, .popOverlay').css('display', 'none');
+            //alert(data.status);
+            PassSelectedMembers(tempteamId, tempTLId, tempTMId, tempTMName);
+        }
+        else {
+            alert("Please select atleast one member to assign.");
+        }
+    }
+
+</script>

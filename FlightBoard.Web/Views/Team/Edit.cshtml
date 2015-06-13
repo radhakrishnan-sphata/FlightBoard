@@ -1,0 +1,202 @@
+﻿@model FlightBoard.Web.Models.TeamModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Edit";
+}
+@using (Html.BeginForm("Edit", "Team", FormMethod.Post, new { @id = "form1" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.TeamId)
+    <div class="headerWrapper">
+    <ul class="tabedNav">
+        <li><a href="@Url.Action("Index","Team")">Search Teams</a></li>
+        <li class="active"><a href="@Url.Action("AssignTeam","Team")">Create Teams</a></li>
+    </ul>
+</div>
+    <div class="itemSearchContaier">
+        <div class="itemSearchInnerContainer">
+            @Html.ValidationSummary(true)
+            <div class="assignTeam">
+                <div class="itemSearchTop">
+                    <div class="horizantalForm">
+                        <label>Team Name</label>
+                        @Html.TextBoxFor(x => x.TeamName)
+                        @Html.ValidationMessageFor(x => x.TeamName)
+                    </div>
+                    <div class="horizantalForm">
+                        <label>Team Leader</label>
+                        @Html.DropDownListFor(x => x.TeamLeadId, @Model.TeamLeadList)
+                    </div>
+                    <div class="horizantalForm">
+                        <label>Production From</label>
+                        <div class="calendarInput">
+                            @Html.TextBoxFor(x => x.TeamStartDate, "{0:MM/dd/yyyy}", new { @value = "", @class = "TeamStartDate" })
+                            <span class="icon calendar"></span>@*@Html.ValidationMessageFor(x => x.TeamStartDate)*@
+                        </div>
+                    </div>
+                    <div class="horizantalForm">
+                        <label>Production To</label>
+                        <div class="calendarInput">
+                            @Html.TextBoxFor(x => x.TeamEndDate, "{0:MM/dd/yyyy}", new { @value = "", @class = "TeamStartDate" })
+                            <span class="icon calendar"></span>@*@Html.ValidationMessageFor(x => x.TeamEndDate)*@
+                        </div>
+                    </div>
+                </div>
+                <div class="rightSideFields">
+                    <label>Team Members</label>
+                    <div class="fieldsWrapper">
+                        <div class="checkboxMain">
+                            @{int i = 1;
+                            foreach (var item in ViewBag.items)
+                            {
+                                if (Model.TeammemberList.Contains(item.UserId))
+                                {
+                                    <div class="checkbox">
+                                        <input type="checkbox" id="chkMember_@i" checked="checked" value="@item.UserId" name="radio-inline" />
+                                        <label for="chkMember_@i">@item.FirstName @item.LastName</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="checkbox">
+                                        <input type="checkbox" id="chkMember_@i" value="@item.UserId" name="radio-inline" />
+                                        <label for="chkMember_@i">@item.FirstName @item.LastName</label>
+                                    </div>
+                                }
+                                i++;
+                            }
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="btWrapper">
+                    <input name="" type="reset" class="button medium" value="Cancel" onclick="location.href='@Url.Action("Index", "Team")'" />
+                    <input name="" type="submit" class="button medium marR10" value="Update" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#TeamStartDate").datepicker({ dateFormat: 'mm/dd/yy', defaultDate: new Date() });
+        $("#TeamEndDate").datepicker({ dateFormat: 'mm/dd/yy', defaultDate: new Date() });
+
+        $("#form1").submit(function (e) {
+            e.preventDefault();
+            if ($('.checkboxMain div').find("input:checked").length > 0) {
+
+                if ($('#TeamName').val() == "") {
+                    alert("Please enter Team Name"); return false;
+                }
+                else if ($('#TeamLeadId').val() <= 0)
+                { alert("Please select Team Leader"); return false; }
+                else if ($('#TeamStartDate').val() == "")
+                { alert("Please select or enter Production From Date"); return false; }
+                else if ($('#TeamEndDate').val() == "")
+                { alert("Please select or enter Production To Date"); return false; }
+                else if (!ValidateStartDate())
+                { return false; }
+               
+                //$('#TeamStartDate').val($("#TeamStartDate").val().split('/')[1] + "/" + $("#TeamStartDate").val().split('/')[0] + "/" + $("#TeamStartDate").val().split('/')[2])
+                //$('#TeamEndDate').val($("#TeamEndDate").val().split('/')[1] + "/" + $("#TeamEndDate").val().split('/')[0] + "/" + $("#TeamEndDate").val().split('/')[2])
+
+                var teamInfo = new Object();
+                teamInfo.TeamName = $('#TeamName').val();
+                teamInfo.TeamLeadId = $('#TeamLeadId').val();
+                teamInfo.TeamStartDate = $('#TeamStartDate').val();
+                teamInfo.TeamEndDate = $('#TeamEndDate').val();
+                teamInfo.TeamId = $('#TeamId').val();
+
+                var TeammemberList1 = new Array();
+                $('.checkboxMain div').each(function () {
+                    if ($(this).find('input:checkbox').is(':checked')) {
+                        var teamMemberItem = new Object();
+                        teamMemberItem.TeamMemberId = $(this).find('input:checkbox').val();
+                        teamMemberItem.TeamId = $('#TeamId').val();
+                        TeammemberList1.push(teamMemberItem);
+                    }
+                });
+                teamInfo.fb_TeamMembers = TeammemberList1;
+                $.blockUI();
+                $.ajax({
+                    url: "@Url.Action("Edit", "Team")",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify({
+                        teamModel: teamInfo,
+                        StartDate: $("#TeamStartDate").val(),
+                        EndDate: $("#TeamEndDate").val(),
+                    }),
+                    type: 'POST',
+                    success: function (data) {
+                        if (data.status == "success") {
+                            $.unblockUI();
+                            window.location = "@Url.Action("Index", "Team")";
+                            //alert("Data Inserted Successfully.")
+                            }
+                        else {
+                            alert(data.data);
+                            $.unblockUI();
+                        }
+                    },
+                    error: function (e, textStatus, jqXHR) {
+                        $.unblockUI();
+                    }
+                });
+            }
+            else {
+                alert("Please select atleast one teammember.");
+                return false;
+            }
+        });
+    });
+
+
+    function ValidateStartDate() {
+        SDate = $("#TeamStartDate").val().split('/')[1] + "/" + $("#TeamStartDate").val().split('/')[0] + "/" + $("#TeamStartDate").val().split('/')[2];
+        EDate = $("#TeamEndDate").val().split('/')[1] + "/" + $("#TeamEndDate").val().split('/')[0] + "/" + $("#TeamEndDate").val().split('/')[2];
+
+        
+        var rtn = true;
+        if (SDate) {
+
+            //var today = new Date(GetCurrentDate().split('/').reverse().join('/')); //+ " " + GetCurrentDateTime() //new Date(); // It's returning with time.             
+            var sdattmp = new Date(SDate.split('/').reverse().join('/'));
+            //alert(SDate);
+            //// Compare with current Date.
+            //if (sdattmp < today) {
+            //    alert('Production From Date must be current or future date only.');
+            //    $("#TeamStartDate").val(GetCurrentDate());
+            //    rtn = false;
+            //}
+            // Compare with End Date.
+            if (EDate) {
+                var edattmp = new Date(EDate.split('/').reverse().join('/'));
+                
+                if (sdattmp > edattmp) {
+                    alert('Production From Date must be same or earlier than Production To Date');
+                    rtn = false;
+                }
+            }
+           
+        }
+        return rtn;
+    }
+
+    
+
+    function GetCurrentDate() {
+        var ltoday = new Date();
+        var lMonth = (parseInt(ltoday.getMonth()) + 1);
+        var CurDate = ltoday.getDate() + "/" + ('0' + lMonth).slice(-2) + "/" + ltoday.getFullYear();
+        return CurDate;
+    }
+
+</script>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+

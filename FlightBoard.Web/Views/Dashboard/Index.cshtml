@@ -1,0 +1,876 @@
+﻿@model IList<FlightBoard.Web.Models.DashboardModel>
+@using Lib.Web.Mvc.JQuery.JqGrid;
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<script>
+
+    $("#tblItems tr").click(function () {
+        //GetItems(gridRow["FSSeventlist_intid"], null);
+        $(this).toggleClass("ui-state-hover");
+    });
+
+    function LoadData() {
+        $.ajax({
+            url: "@Url.Action("LoadDataFromFSS", "dashboard")",
+            type: "POST",
+            data: "",
+            success: function (response) {
+            },
+
+        });
+    }
+
+
+    function GetItems(ItemEvent_Id, link) {
+        //alert(ItemEvent_Id);
+        //alert(link);
+        $('#eventQueue tr').removeClass("ui-state-hover")
+        $(link).parent().parent().addClass('ui-state-hover');
+        $('#tblItems tbody td').remove();
+        //alert(unitid + mealname + date);
+        var id = ItemEvent_Id;
+
+        var parm = 'ItemEvent_Id=' + id;
+
+        $.ajax({
+            url: "@Url.Action("getItems","dashboard")",
+            type: "POST",
+            data: parm,
+            success: function (response) {
+
+                //var link;
+
+                //alert(link);
+                var JSONObject = $.parseJSON(response);
+
+                var count = 0;
+                for (var key in JSONObject) {
+                    var data = JSONObject[key]["ItemName"];
+                    var itemid = JSONObject[key]["Item_intid"];
+                    var qty = JSONObject[key]["Quantity"];
+                    var eventlist_intid = JSONObject[key]["ItemEvent_intid"];
+                    var link = ' ./Receipe?EventListId=' + eventlist_intid + "&ItemId=" + itemid + "&Quantity=" + qty + "&asid=" + itemid;
+                    var productionData = "";
+                    if (JSONObject[key]["ProductionDate"] == "Multiple") {
+                        productionData = "<a title='Show ProductionDates' href='#' class='multipleIcon icon' onclick='ShowProductionDates(" + itemid + "," + eventlist_intid + ");'></a>";
+                    }
+                    else
+                    {
+                        productionData = JSONObject[key]["ProductionDate"];
+                    }
+                    var newRow = "<tr>" +
+                        "<td>" + itemid + "</td>" +
+            "<td class='empid'>" + data + "</td>" +
+           "<td class='empid'>" + productionData + "</td>" +
+                           "<td class='lname'>" + qty + "</td>";
+                    //alert(JSONObject[key]["ItemImageFileName"]);
+                    newRow = newRow + "<td class='age'><img src=\"../Content/images/img1.jpg\"></td>";
+                    //if (JSONObject[key]["ItemImageFileName"] != "" && JSONObject[key]["ItemImageFileName"] != null)
+                    //{
+                    //    newRow = newRow + "<td class='age'><img width='32' height='24' src=\"/ItemImages/" + JSONObject[key]["ItemImageFileName"] + "\"></td>";
+                    //}
+                    //else
+                    //{
+                    //    newRow = newRow +  "<td class='age'><img src=\"../Content/images/img1.jpg\"></td>" ;
+                    //}
+           
+                    newRow = newRow + "<td><a href= # Onclick = 'GetRecipeDetails(" + eventlist_intid + "," + itemid + "," + qty + "," + itemid + ");'><span class='icon recipe'></span></a></td>"
+                        + "</tr>";
+                    $('#tblItems > tbody > tr:last').after(newRow);
+                    count++;
+                }
+
+                $('#NoOfItems').text(count);
+                $("#boxscroll2").mCustomScrollbar("update");
+            },
+
+        });
+    }
+
+    function ShowItem(EventId) {
+        window.location = "/Item/Index/" + EventId;
+    }
+</script>
+@*<link href="../css/ui-darkness/jquery-ui-1.8.12.custom.css" rel="stylesheet" type="text/css" />*@
+
+
+@*<script src="../js/jquery-1.5.2.min.js" type="text/javascript"></script>
+    <script src="../js/i18n/grid.locale-en.js" type="text/javascript"></script>
+    <script src="../js/jquery.jqGrid.min.js" type="text/javascript"></script>
+    <script src="../Scripts/json2-min.js" type="text/javascript"></script>
+    <script src="../js/jquery.jqGrid.src.js" type="text/javascript"></script>
+    <script src="~/Scripts/JqGridFormatters.js" type="text/javascript"></script>*@
+<script type="text/javascript">
+
+
+
+    $(document).ready(function () {
+
+        function FormatHistory(cellValue, options, rowObject) {
+            //alert(1);
+            //alert(rowObject["FSSeventlist_intid"]);
+            //alert(rowObject["Contract"]);
+            return "<a href=../Item/Index?Id=" + rowObject["FSSeventlist_intid"] + "&Contract=" + escape(rowObject["Contract"]).replace(/\+/g, '%2b') + "><span class='paperclip' title='Assign'></span></a>";
+            //return "<a href='#'></a>";
+        }
+
+
+
+        function ShowDataInHover(cellValue, options, rowObject) {
+            //alert(1);
+
+            var descriptioData = rowObject["Description"];
+            var wrappedText = '';
+            //alert(descriptioData.length);
+            if (descriptioData.length >  5)
+            {
+                wrappedText = descriptioData.substring(0, 10) + '...';
+            }
+            else
+            {
+                wrappedText = descriptioData;
+            }
+
+            return "<span class = 'EventsMouseOver' title='" + descriptioData + "'>" + wrappedText + "</span>";
+
+            //return "<a href=../Item/Index/" + rowObject["FSSeventlist_intid"] + "><span class='paperclip' title='Assign'></span></a>";
+            //return "<a href='#'></a>";
+        }
+        function ShowProductionDatesHyperLink(cellValue, options, rowObject)
+        {
+            if (rowObject["ProductionDate"] == "Multiple")
+            {
+                return "<a title='Show ProductionDates' href='#' class='multipleIcon icon' onclick='ShowProductionDates(0, "+ rowObject["FSSeventlist_intid"] + ")'></a>";
+            }
+            else 
+            {
+                return rowObject["ProductionDate"];
+            }
+            
+        }
+        
+        function ShowFulText(descriptionData)
+        {
+            alert(descriptionData);
+            descriptionData;
+        }
+        var data = $("#griddata").data("value");
+
+        var grid = $("#eventsgrid").jqGrid({
+            sortable: true,
+            datatype: "local",
+            height:232,
+            data: data,
+            rowNum: 500,
+            sortname: 'Contract# , Unit Name,Description,Event Date, #Items,ItemEventID',
+            colNames: ["Contract #", "Unit Name", "Production Date", "Description", "Event Date", "#Items", "Count", "ItemEventID", "Assign"],
+            colModel: [
+                           { name: "Contract", index: "Contract", width: "120" },
+                           { name: "EventName", index: "EventName", sortable: true, editable: true },
+                           { name: "ProductionDate", index: "Production Date", width: "160",formatter :ShowProductionDatesHyperLink },
+                           { name: "Description", index: "Description", sortable: true, formatter: ShowDataInHover },
+                           { name: "EventDate", index: "EventDate", sortable: true, width: "120", formatter: 'date', formatoptions: { newformat: 'm/d/Y' } },
+                           { name: "NoofItems", index: "NoofItems", sortable: true, width: "100", formatter: 'integer', align: 'left', sorttype: "int" },
+                           { name: "Quantity", index: "Quantity", sortable: true, width: "90", formatter: 'decimal', align: 'left', sorttype: "decimal" },
+                           { name: "FSSeventlist_intid", index: "test", hidden: true },
+                           //{
+                           //    name: 'documentName',
+                           //    index: 'documentName',
+                           //    width: 75,
+                           //    editable: false,
+                           //    //add the following in one of the colModel config
+                           //    formatter: 'actions',
+                           //    align: 'center',
+                           //    formatoptions: {
+                           //        keys: true,
+                           //        editformbutton: false,
+                           //        delbutton: false
+                           //    }
+                           //},
+                           {
+                               name: 'Assign',
+                               index: '/Item/Index/1318',
+                               edittype: 'select',
+                               width: '90',
+                               formatter: FormatHistory
+                               // formatoptions: { baseLinkUrl: "/Item/Index/" + EventId, idName: 'Guid' }
+                           },
+            ],
+            multiselect: false,
+            shrinkToFit: true,
+            sortorder: "Asc",
+            sortable: true,
+            scrollOffset: 0,
+            gridComplete: "gridComplete",
+        });
+
+        grid.jqGrid("setGridParam", {
+            onSelectRow: function (rowid, status) {
+                var gridRow = $(this).jqGrid("getRowData", rowid);
+                //  GetItems(gridRow["FSSeventlist_intid"], null);
+                GetItems(gridRow["FSSeventlist_intid"], null);
+            }
+        });
+
+        $("#gview_eventsgrid > .ui-jqgrid-bdiv").mCustomScrollbar({ scrollInertia: 0, theme: "dark-thick" });
+        grindWidth();
+
+    });
+
+    function grindWidth() {
+        var $grid = $("#eventsgrid");
+        if ($(window).width() > 1024) {
+            var newWidth = $grid.closest(".ui-jqgrid").parent().width();
+            $grid.jqGrid("setGridWidth", newWidth, true);
+        } else {
+            $grid.jqGrid("setGridWidth", '980px', true);
+        }
+    }
+
+    $(window).on("resize", function () {
+        grindWidth();
+    });
+
+    function ShowProductionDates(itemId,eventId)
+    {
+        if (itemId > 0 && eventId > 0) {
+            $.ajax({
+                url: "@Url.Action("ShowProductionDates","Item")",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    itemId: itemId,
+                    eventId: eventId
+                }),
+                type: 'Post',
+                success: function (data) {
+                    $("#popup").html('');
+                    $("#popup").html(data);
+                    $("#popup").addClass('multipleProductionDate');
+                    $('.popUp, .popOverlay').css('display', 'block');
+                },
+                error: function (e, textStatus, jqXHR) {
+                    alert(e);
+                }
+            });//end of Ajax
+        }
+        else if (itemId == 0 && eventId > 0) {
+            $.ajax({
+                url: "@Url.Action("ShowProductionDates","Item")",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    itemId: itemId,
+                    eventId: eventId
+                }),
+                type: 'Post',
+                success: function (data) {
+                    $("#popup").html('');
+                    $("#popup").html(data);
+                    $("#popup").addClass('multipleProductionDate');
+                    $('.popUp, .popOverlay').css('display', 'block');
+                },
+                error: function (e, textStatus, jqXHR) {
+                    alert(e);
+                }
+            });//end of Ajax
+        }
+    }
+
+</script>
+
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Continental Catering and Events</title>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+    @*<link rel="stylesheet" href="css/normalize.css" type="text/css" />
+    <link rel="stylesheet" href="css/styles.css" type="text/css" />*@
+</head>
+
+<body>
+    <div class="contentContainer">
+        <div class="adminDashboard">
+            <div class="adminLeft">
+                <div class="productioninFlight">
+                    <div class="pifHeader">
+                        <h2>EVENTS QUEUE</h2>
+                        <div class="productionSort">
+
+                            <label>
+                                @{
+                                    if (Model != null && Model.Count > 0)
+                                    {
+                                         var date = Model.FirstOrDefault().RefreshTime.Value.ToShortDateString() + " " + Model.FirstOrDefault().RefreshTime.Value.ToShortTimeString();
+                                    <span>Last Refresh Time :</span> @date
+                                    }
+                                    else
+                                    {
+                                         <span>Last Refresh Time :</span> 
+                                    }
+                                    
+                                }
+                                @*<span>Last Refresh Time :</span>  @Html.Display(Model.FirstOrDefault().RefreshTime.Value.ToShortDateString() + " " + Model.FirstOrDefault().RefreshTime.Value.ToShortTimeString())*@
+                            </label>
+                            @Html.ActionLink("Load Events", "LoadDataFromFSS", "Dashboard", null, new { @Title = "Fetch event details from FSS", @class = "refreshBtn" })
+                            @*<a title="Fetch event details from FSS" class="refreshBtn" href="#" onclick="LoadShared()">LoadShareDirectory</a>*@
+
+                            @*<label>Sort By</label>
+                                <select>
+                                    <option>Event Name</option>
+                                    <option>Event A</option>
+                                    <option>Event B</option>
+                                    <option>Event C</option>
+                                    <option>Event D</option>
+                                    <option>Event F</option>
+                                </select>*@
+                        </div>
+                    </div>
+
+                    <div id="boxscroll1">
+                        <table id="eventsgrid"></table>
+
+                        <input type="hidden" id="griddata" data-value="@ViewBag.events" />
+                    </div>
+
+
+
+                    <div class="pifHeader">
+                        <h2>ITEM DETAILS </h2>
+                        <div class="Noofitems" align="right">
+                            <b><label>No. Of Items: </label></b><span id="NoOfItems">@ViewBag.NoOfItems</span>
+                        </div>
+                    </div>
+                    <div class="itemDetails">
+                        <div class="grid itemDetails">
+                            <div class="table-responsive rmfTable pull-left width100p">
+                                <div id="boxscroll2" class="customScroll">
+                                    <table id="tblItems" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Item#</th>
+                                                <th>Item Name</th>
+                                                <th>Production Date</th>
+
+                                                <th align="left">Quantity</th>
+                                                <th>Image</th>
+                                                @*<th>Sized Recipe</th>*@
+                                                <th>Recipe Details</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in @ViewBag.items2)
+                                            {
+                                                <tr>
+                                                    <td>@item.Item_intid</td>
+                                                    <td>@item.ItemName</td>
+
+                                                    @{
+                                                if (Model.FirstOrDefault().productionDateModel != null)
+                                                {
+                                                    var ProductionDateModelList = Model.FirstOrDefault().productionDateModel.Where(x => x.ItemId == item.Item_intid && x.EventId == item.ItemEvent_intid).ToList();
+                                                    if (ProductionDateModelList.Count == 0)
+                                                    {
+                                                        <td>NA</td>
+                                                    }
+                                                    else if (ProductionDateModelList.Count == 1)
+                                                    {
+                                                        <td>@ProductionDateModelList.FirstOrDefault().ProdcutionDate.ToString("MM/dd/yyyy")</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td><a title='Show ProductionDates' href='#' class='multipleIcon icon' onclick='ShowProductionDates(@item.Item_intid,@item.ItemEvent_intid)'></a></td>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <td>NA</td>
+                                                }
+                                                    }
+
+                                                    <td>@item.Quantity</td>
+                                                    <td><img width='32' height='24' src="../Content/images/img1.jpg"></td>
+                                                    <td><a href="#" onclick="GetRecipeDetails(@item.ItemEvent_intid,@item.Item_intid,@item.Quantity,@item.Item_intid)"><span class="icon recipe" style="cursor:pointer"></span></a></td>
+                                                    @*<td>
+                                <a onclick='GetRecipeDetails(@item.Item_intid,@item.ItemEvent_intid,"@item.ItemName");'><span class="icon recipe"></span></a>
+                            </td>*@
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="adminRight">
+                <h2>EVENTS</h2>
+                <div class="gridWrapper">
+                    <div class="serchWrapper">
+                        <label>Contract #</label>
+                        <div class="calendarInput"><input type="text" id="datepickerCtrl">@*<span class="icon calendar"></span>*@</div>
+                    </div>
+
+
+                    <div class="grid" id="boxscroll3">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" id="tblEventStatus">
+
+                            <tbody>
+                               
+                                @*<tr>
+                                        <td>324578</td>
+                                        <td>
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="progressBar">
+                                                <tbody>
+                                                    <tr>
+                                                        <td width="13">5</td>
+                                                        <td width="88">
+                                                            <div class="meter">
+                                                                <span style="width:55%"></span>
+                                                            </div>
+                                                        </td>
+                                                        <td>20</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td><span class="icon smokeIcon"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>324578</td>
+                                        <td>
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="progressBar">
+                                                <tbody>
+                                                    <tr>
+                                                        <td width="13">0</td>
+                                                        <td width="88">
+                                                            <div class="meter green">
+                                                                <span style="width:100%"></span>
+                                                            </div>
+                                                        </td>
+                                                        <td>5</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td><span class="icon greenCorrectIcon"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>324578</td>
+                                        <td>
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="progressBar">
+                                                <tbody>
+                                                    <tr>
+                                                        <td width="13">2</td>
+                                                        <td width="88">
+                                                            <div class="meter">
+
+                                                            </div>
+                                                        </td>
+                                                        <td>5</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td><span class="icon reddownIcon"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>324578</td>
+                                        <td>
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="progressBar">
+                                                <tbody>
+                                                    <tr>
+                                                        <td width="13">2</td>
+                                                        <td width="88">
+                                                            <div class="meter green">
+                                                                <span style="width:100%"></span>
+                                                            </div>
+                                                        </td>
+                                                        <td>5</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td><span class="icon greenCorrectIcon"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>324578</td>
+                                        <td>
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="progressBar">
+                                                <tbody>
+                                                    <tr>
+                                                        <td width="13">2</td>
+                                                        <td width="88">
+                                                            <div class="meter green">
+                                                                <span style="width:100%"></span>
+                                                            </div>
+                                                        </td>
+                                                        <td>5</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td><span class="icon greenCorrectIcon"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>324578</td>
+                                        <td>
+                                            <table width="100%" cellspacing="0" cellpadding="0" border="0" class="progressBar">
+                                                <tbody>
+                                                    <tr>
+                                                        <td width="13">5</td>
+                                                        <td width="88">
+                                                            <div class="meter">
+                                                                <span style="width:55%"></span>
+                                                            </div>
+                                                        </td>
+                                                        <td>17</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td><span class="icon smokeIcon"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>324578</td>
+                                        <td>
+                                            <table width="100%" cellspacing="0" cellpadding="0" border="0" class="progressBar">
+                                                <tbody>
+                                                    <tr>
+                                                        <td width="13">0</td>
+                                                        <td width="88">
+                                                            <div class="meter">
+
+                                                            </div>
+                                                        </td>
+                                                        <td>8</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td><span class="icon reddownIcon"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>324578</td>
+                                        <td>
+                                            <table width="100%" cellspacing="0" cellpadding="0" border="0" class="progressBar">
+                                                <tbody>
+                                                    <tr>
+                                                        <td width="13">2</td>
+                                                        <td width="88">
+                                                            <div class="meter green">
+                                                                <span style="width:100%"></span>
+                                                            </div>
+                                                        </td>
+                                                        <td>5</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td><span class="icon greenCorrectIcon"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>324578</td>
+                                        <td>
+                                            <table width="100%" cellspacing="0" cellpadding="0" border="0" class="progressBar">
+                                                <tbody>
+                                                    <tr>
+                                                        <td width="13">2</td>
+                                                        <td width="88">
+                                                            <div class="meter green">
+                                                                <span style="width:100%"></span>
+                                                            </div>
+                                                        </td>
+                                                        <td>5</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td><span class="icon greenCorrectIcon"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>324578</td>
+                                        <td>
+                                            <table width="100%" cellspacing="0" cellpadding="0" border="0" class="progressBar">
+                                                <tbody>
+                                                    <tr>
+                                                        <td width="13">5</td>
+                                                        <td width="88">
+                                                            <div class="meter">
+                                                                <span style="width:55%"></span>
+                                                            </div>
+                                                        </td>
+                                                        <td>17</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td><span class="icon smokeIcon"></span></td>
+                                    </tr>*@
+
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    
+
+   
+    <div id="popup" class="popUp">
+
+    </div>
+    <div class="popOverlay"></div>
+    @*<script type="text/javascript" src="js/common.js"></script>*@
+
+    <script type="text/javascript">
+
+        //$(function () {
+        //    $("#datepickerCtrl").datepicker();
+        //$("#datepickerCtrl").datepicker({
+        //    showOn: "button",
+        //    buttonImage: "images/calendar.gif",
+        //    buttonImageOnly: true,
+        //    buttonText: "Select date"
+        //});
+        //});
+
+        @*function GetRecipeDetails(itemId, eventId, itemname) {
+            var url = '@Url.Action("Ingredient", "Dashboard")';
+            var reUrl = url + '?id=' + itemId + "&eventId=" + eventId + "&itemName=" + itemname;
+            $.post(reUrl, {}, function (resp) {
+                $('#popup').html(resp);
+
+            });
+
+            /*$("#popup").dialog({
+                width: 800,
+                hight: 600,
+                title: 'Recipe Details',
+                modal: true,
+
+            });*/
+        }*@
+
+
+        $(document).ready(function () {
+
+            //$("#boxscroll1").niceScroll({ touchbehavior: false, cursorcolor: "#00F", cursoropacitymax: 0.7, cursorwidth: 8, autohidemode: false });
+            //$("#boxscroll2").niceScroll({ touchbehavior: false, cursorcolor: "#00F", cursoropacitymax: 0.7, cursorwidth: 8, autohidemode: false });
+            //$("#boxscroll3").niceScroll({ touchbehavior: false, cursorcolor: "#00F", cursoropacitymax: 0.7, cursorwidth: 8, autohidemode: false });
+
+            $('#eventQueue tr').eq(1).addClass("ui-state-hover");
+
+            $('#datepickerCtrl').datepicker();
+            $('#datepickerCtrl').datepicker('setDate', 'today');
+            //$(document).on('click', '.itemDetails span.recipe', function () {
+            //    $('.popUp, .popOverlay').css('display', 'block');
+
+            //})
+            if ($("#datepickerCtrl").val() != "")
+            {
+                $.blockUI();
+                //display($("#datepickerCtrl").val());
+                $.ajax({
+                    url: "@Url.Action("GetEventStatus", "DashBoard")",
+                    contentType: "application/json",
+                data: JSON.stringify({
+                    productionDate: $("#datepickerCtrl").val()
+                }),
+                type: 'Post',
+                success: function (data) {
+                    var status = data.status;
+                    if (status == "success")
+                    {
+                        var EventStatusModel = data.EventStatusModel;
+                        var htmlRow = "";
+                        $.each(EventStatusModel, function (index, value) {
+                            //alert(htmlRow);
+                            htmlRow = htmlRow + "<tr><td width='50%'>" + value.ContractID + " </td>";
+                            htmlRow = htmlRow + "<td width='50%'><table width='100%' border='0' cellspacing='0' cellpadding='0' class='progressBar'><tr><td width= '16%' align='right'>" + value.TotalItemCount + "</td> <td width='68%'><div class='meter'> <span style='width:" + value.ProgressPercent + "%'></span></div></td><td width='16%' align='left'>" + value.TotalCompletedItemsCount + "</td> </tr> </table> </td>";
+                            htmlRow = htmlRow + "</tr>";
+                            //alert(htmlRow);
+                        });
+                           
+                        $("#tblEventStatus").html(htmlRow);
+                        $.unblockUI();
+                    }
+                    else {
+                        alert(data.status);
+                        $.unblockUI();
+                    }
+                },
+                error: function (e, textStatus, jqXHR) {
+                    $.unblockUI();
+                }
+            });//end of Ajax
+            }
+            $(".hasDatepicker").datepicker({
+                onSelect: function (dateText) {
+                    display("Selected date: " + dateText + "; input's current value: " + this.value);
+                }
+            }).on("change", function () {
+                $.blockUI();
+                //display($("#datepickerCtrl").val());
+                $.ajax({
+                    url: "@Url.Action("GetEventStatus", "DashBoard")",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        productionDate: $("#datepickerCtrl").val()
+                    }),
+                    type: 'Post',
+                    success: function (data) {
+                        var status = data.status;
+                        if (status == "success")
+                        {
+                            var EventStatusModel = data.EventStatusModel;
+                            var htmlRow = "";
+                            $.each(EventStatusModel, function (index, value) {
+                                //alert(htmlRow);
+                                htmlRow = htmlRow + "<tr><td width= '50%'>" + value.ContractID + " </td>";
+                                htmlRow = htmlRow + "<td width= '50%'><table width='100%' border='0' cellspacing='0' cellpadding='0' class='progressBar'><tr><td width= '16%' align='right'>" + value.TotalItemCount + "</td> <td width='68%'><div class='meter'> <span style='width:" + value.ProgressPercent + "%'></span></div></td><td width='16%' align='left'>" + value.TotalCompletedItemsCount + "</td> </tr> </table> </td>";
+                                htmlRow = htmlRow + "</tr>";
+                                //alert(htmlRow);
+                            });
+                           
+                            $("#tblEventStatus").html(htmlRow);
+                            $.unblockUI();
+                        }
+                        else {
+                            alert(data.status);
+                            $.unblockUI();
+                        }
+                    },
+                    error: function (e, textStatus, jqXHR) {
+                        $.unblockUI();
+                    }
+                });//end of Ajax
+            });
+
+            function display(msg) {
+                alert(msg);
+            }
+
+            $(document).on('click', '.popclose', function () {
+                $('.popUp, .popOverlay').css('display', 'none')
+                //$('#boxscroll4').getNiceScroll().remove();
+            })
+
+            var winH = $(window).height();
+            var popHeight = $('.recipeDetailsPop').height();
+            var popHei = popHeight - 70;
+            var winHei = winH - 150;
+
+
+            if (popHeight < winH) {
+
+                $('#boxscroll4').css('height', popHei)
+            }
+            else {
+
+                $('#boxscroll4').css('height', winHei)
+            }
+            //$("#boxscroll4").getNiceScroll().resize();
+
+            //alert(getParameterByName('ID'));
+
+            var ID = getParameterByName('ID');
+            if(ID>0)
+            {
+                $('#eventsgrid > tbody  > tr > td').each(function () {
+                    //alert($(this).prop("tagName"));
+                    if ($(this).attr("aria-describedby") == "eventsgrid_FSSeventlist_intid")
+                    {
+                        //alert($(this).attr("title"));
+                        if($(this).attr("title")==ID)
+                        {
+                            //alert($(this).parent().prop("tagName"));
+                            $(this).parent().css('font-weight', 'bold');
+                            $(this).parent().css('color', '#006600');
+                            $(this).parent().addClass("ui-state-hover");
+                            GetItems(ID, null);
+                        }
+                    }
+                });
+            }
+
+        });
+
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+
+        function GetRecipeDetails(eventId, ItemId, Quantity, asID)
+        {
+            if (ItemId > 0 && eventId > 0) {
+                //$('.popUp, .popOverlay').css('display', 'none');
+               
+                //if ($("#Quantity").val() != undefined)
+                //{
+                //    Quantity = $("#Quantity").val();
+                //}
+                //alert(Quantity);
+               
+                $("#popup").removeClass('multipleProductionDate');
+                $("#popup").empty();
+                $.blockUI();
+                $.ajax({
+                    url: "@Url.Action("Receipe", "DashBoard")",
+                    contentType: "application/json",
+                type: 'Post',
+                data: JSON.stringify({
+                    itemId: ItemId,
+                    eventId: eventId,
+                    Quantity: Quantity,
+                    AssemblageID: ItemId
+                }),
+                success: function (data) {
+                    
+                    $("#popup").html('');
+                    $("#popup").html(data);
+                    $('.popUp, .popOverlay').css('display', 'block');
+                    $.unblockUI();
+                },
+                error: function (e, textStatus, jqXHR) {
+                    alert(e);
+                }
+            });//end of Ajax
+
+        }
+        }
+        function LoadShared()
+        {
+            $.ajax({
+                url: "@Url.Action("LoadShared", "DashBoard")",
+                contentType: "application/json",
+                type: 'Post',
+                success: function (data) {
+                    alert(data.status);
+                    //alert(data.Files);
+                    //alert(data.FileName);
+                }
+            });
+        }
+
+    </script>
+
+</body>
+</html>

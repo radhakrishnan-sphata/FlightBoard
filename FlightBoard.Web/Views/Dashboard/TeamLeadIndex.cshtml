@@ -1,0 +1,44 @@
+﻿@model IList<FlightBoard.Web.Models.DashboardModel>
+@using Lib.Web.Mvc.JQuery.JqGrid;
+
+@{
+    ViewBag.Title = "Index";
+}
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Continental Catering and Events</title>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/normalize.css" type="text/css" />
+    <link rel="stylesheet" href="css/styles.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+    <div class="contentContainer">
+        <div class="adminDashboard" style="min-height:500px">
+            <div class="welText">Welcome to team lead dashboard</div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="js/common.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#boxscroll1").mCustomScrollbar({ scrollInertia: 0, theme: "dark-thick" });
+            $("#boxscroll2").mCustomScrollbar({ scrollInertia: 0, theme: "dark-thick" });
+            $("#boxscroll3").mCustomScrollbar({ scrollInertia: 0, theme: "dark-thick" });
+            $('#eventQueue tr').eq(1).addClass("ui-state-hover");
+            $("#boxscroll3").mCustomScrollbar({ scrollInertia: 0, theme: "dark-thick" });
+            //$('window').resize(function () {
+            //    $('#boxscroll3').getNiceScroll().resize();
+            //    $('#boxscroll2').getNiceScroll().resize();
+            //    $('#boxscroll1').getNiceScroll().resize();
+            //});
+        });
+    </script>
+
+</body>
+</html>

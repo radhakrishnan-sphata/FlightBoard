@@ -1,0 +1,188 @@
+﻿@model FlightBoard.Web.Models.ItemModel
+@{
+    Layout = "";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="popInner addNotes addbatch">
+    <h1>Create batch</h1>
+    <div class="popclose"><a href="javascript:void(0)"></a></div>
+    @Html.ValidationSummary(true)
+    @*<h3>Items</h3>*@
+    <div class="itemsLeft">
+        <div class="itemsInner">
+            <div class="itemsInnerDivision">
+                <div class="itemsMain">
+                    <h3>Items</h3>
+                    <div id="divBatchItems" class="ItemScroll fieldsWrapper">
+                        @{int i = 1;
+                        if (Model.ItemList.Count > 0)
+                        {
+                            foreach (var item in Model.ItemList)
+                            {
+                                
+                                <div class="checkbox">
+                                    <input type="checkbox" id="chkBatchItems_@i" value="@item.Key" name="radio-inline"  /> @*checked="@item.IsChecked"*@
+                                    <label for="chkBatchItems_@i">@item.Value</label>
+                                    <input type="hidden" value="@item.EventId" />
+                                </div>
+                                i++;
+                            }
+                        }
+                        }
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="itemsInnerDivision">
+                <div class="itemsSub">
+                    <h3>Sub Items</h3>
+                    <div id="divBatchSubItems" class="ItemScroll fieldsWrapper ">
+
+                        @{int j = 1;
+                        foreach (var mainItem in Model.ItemList)
+                        {
+                            <h4>@mainItem.Value</h4>
+                            var subItemList = Model.SubItemsList.Where(x => x.MainItemId == mainItem.Key && x.EventId == mainItem.EventId).ToList();
+                            if (subItemList.Count > 0)
+                            {
+                                foreach (var subItem in subItemList)
+                                {
+                                   
+
+                                    <div class="checkbox">
+                                        <input type="checkbox" id="chkBatchSubItems_@j" value="@subItem.SubItemId" name="radio-inline">
+                                        <label for="chkBatchSubItems_@j">@subItem.SubItemName</label>
+                                        <input type="hidden" value="@subItem.EventId" />
+                                    </div>
+                                    j++;
+                                }
+
+                            }
+                        }
+                        }
+                       
+                    </div>
+                </div>
+            </div>
+            <div class="itemsInnerDivision col3">
+                @Html.TextBox("txtBatchName", "", new { @id = "txtBatchName", @class = "textbox", @placeholder = "BatchName" })
+            </div>
+        </div>
+    </div>
+
+    
+
+    <div class="btnWrapper">
+        <button onclick="AddBatch();" id="btnAssignItem" class="button green">Add</button>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    function AddBatch() {
+
+        if ($("#txtBatchName").val() == '')
+        {
+            alert('Please enter Batchname');
+            $("#txtBatchName").focus();
+            return;
+        }
+
+        var IteamInfo = new Object();
+        var ItemList1 = [];
+        var MainItems = false;
+        var SubItems = false;
+        var IsSubitem = false;
+
+        var IteamInfoPass = new Object();
+        var ItemListPass = [];
+
+        $('#divBatchItems div input[type=checkbox]').each(function () {
+            //alert($(this).is(":checked"));
+            if ($(this).is(":checked")) {
+                MainItems = true;
+                //alert($(this).attr('value'));
+                var o = new Object();
+                var k = $(this).attr('value');
+                //var s = k.split('_');
+                o['Key'] = k; //s[s.length - 1];
+                //alert($(this).parent().text());
+                o['Value'] = $(this).parent().text();
+                //alert($(this).parent().prop('tagName'));
+                //alert($(this).parent().find(":hidden").attr('value'));
+                //alert($(this).parent().next().next().next().next().text());
+                o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                ItemList1.push(o);
+                ItemListPass.push(o);
+            }
+            else {
+                var o = new Object();
+                var k = $(this).attr('value');
+                o['Key'] = k; 
+                o['Value'] = $(this).parent().text();
+                o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                ItemListPass.push(o);
+            }
+        });
+
+        $('#divBatchSubItems div input[type=checkbox]').each(function () {
+            //alert($(this).is(":checked"));
+            if ($(this).is(":checked")) {
+                SubItems = true;
+                //alert($(this).attr('value'));
+                var o = new Object();
+                var k = $(this).attr('value');
+                //var s = k.split('_');
+                o['Key'] = k; //s[s.length - 1];
+                //alert($(this).parent().text());
+                o['Value'] = $(this).parent().text();
+                //alert($(this).parent().prop('tagName'));
+                //alert($(this).parent().find(":hidden").attr('value'));
+                //alert($(this).parent().next().next().next().next().text());
+                o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                ItemList1.push(o);
+            }
+        });
+
+        if (MainItems && SubItems)
+        {
+            alert("Batch can be created eigther with Items or Subitems..!");
+            return;
+        }
+        if (SubItems)
+            IsSubitem = true;
+        //alert(ItemList1.length);
+        if (ItemList1.length > 0) {
+            IteamInfo.ItemList = ItemList1;
+            IteamInfoPass.ItemList = ItemListPass;
+            $.ajax({
+                url: "@Url.Action("AddBatch", "Item")",
+                contentType: "application/json",
+            data: JSON.stringify({
+                itemModel: IteamInfo,
+                BatchName: $("#txtBatchName").val(),
+                isSubitem: IsSubitem
+            }),
+            type: 'Post',
+            success: function (data) {
+                $("#popup").html('');
+                $("#popup").html(data);
+                $('.popUp, .popOverlay').css('display', 'block');
+
+                if(data.status)
+                {
+                    $('.popUp, .popOverlay').css('display', 'none');
+                    //alert(data.status);
+                    callbackfunction(data.status, IteamInfoPass);
+                }
+            },
+            error: function (e, textStatus, jqXHR) {
+            }
+        });//end of Ajax
+    
+    }//End Of ItemList1
+    else { alert("Please select atleast one item."); }
+    }
+</script>

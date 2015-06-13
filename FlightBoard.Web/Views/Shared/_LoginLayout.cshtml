@@ -1,0 +1,24 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Continental Catering and Events</title>
+    <link href='~/Content/css/googleapis.css' rel='stylesheet' type='text/css' />
+    <link href="~/Content/css/normalize.css" rel="stylesheet" />
+    <link href="~/Content/css/styles.css" rel="stylesheet" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+</head>
+<body class="loginPage">
+    @Scripts.Render("~/bundles/jquery")
+    @RenderSection("scripts", required: false)
+    <div class="mainWrapper">
+        <div class="loginContainer">
+            <h1 class="logo"><img src="~/Content/images/logo-loginpage.png" width="349" height="112" alt="" /></h1>
+            <div class="loginForm">
+                @RenderBody()
+            </div>
+        </div>
+    </div>   
+</body>
+</html>

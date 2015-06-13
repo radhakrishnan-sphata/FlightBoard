@@ -1,0 +1,25 @@
+﻿
+@{
+    Layout = null;
+}
+
+<div class="multipleProductionDate">
+    <div class="popInner">
+        <h1>Multiple Production Dates</h1>
+        <div class="popclose" style="overflow:auto"><a href="javascript:void(0)"></a></div>
+        <ul class="dates">
+            @{
+                var productionDates = ViewBag.ProductionDates;
+                if (productionDates.Count > 0 && productionDates != null)
+                { 
+                    foreach(var item in productionDates)
+                    {
+                        <li>@item</li>
+                    }
+                }
+            }
+            
+        </ul>
+
+    </div>
+</div>

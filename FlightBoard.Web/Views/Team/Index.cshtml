@@ -1,0 +1,197 @@
+﻿@model FlightBoard.Web.Models.TeamModel
+
+@using Lib.Web.Mvc.JQuery.JqGrid;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="headerWrapper">
+    <ul class="tabedNav">
+        <li class="active"><a href="@Url.Action("Index","Team")">Search Teams</a></li>
+        <li><a href="@Url.Action("AssignTeam","Team")">Create Teams</a></li>
+    </ul>
+</div>
+<div class="itemSearchContaier">
+    <div class="itemSearchInnerContainer">
+        <div class="itemSearchTop">
+            <div class="horizantalForm">
+                <label>Team Name</label>
+                @Html.TextBoxFor(x => x.TeamName)
+            </div>
+            <div class="horizantalForm">
+                <label>Team Leader</label>
+                @Html.TextBoxFor(x => x.TeamLeaderName)
+            </div>
+            <div class="horizantalForm">
+                <label>Production From</label>
+                <div class="calendarInput">
+                    @Html.TextBoxFor(x => x.TeamStartDate, "{0:mm/dd/yyyy}", new { @class = "TeamStartDate" })
+                    <span id="spanfrom" class="icon calendar"></span>@Html.ValidationMessageFor(x => x.TeamStartDate)
+                </div>
+            </div>
+            <div class="horizantalForm">
+                <label>Production To</label>
+                <div class="calendarInput">
+                    @Html.TextBoxFor(x => x.TeamEndDate, "{0:mm/dd/yyyy}", new { @class = "TeamStartDate" })
+                    <span id="spanto" class="icon calendar"></span>@Html.ValidationMessageFor(x => x.TeamEndDate)
+                </div>
+            </div>
+            <input type="button" class="button" value="Clear" onclick='Clearvalues();' />
+            <input type="submit" class="button" value="Search" onclick='$("#SearchTeamJqGrid").trigger("reloadGrid")' />
+        </div>
+        @*<input type="button" class="button" id="btnCreateTeam" value="Create Team" />*@
+    </div>
+
+    <div class="userGrid">
+        <div class="gridPanel">
+            <div class="table-responsive rmfTable pull-left width100p">
+                <div class="jqGrid">
+                    @{
+                        var grid = new JqGridHelper<FlightBoard.Web.Models.fb_Teams_View>("SearchTeamJqGrid",
+                          dataType: JqGridDataTypes.Json,
+                          methodType: JqGridMethodTypes.Post,
+                          pager: true,
+                          rowsNumbers: true,
+                          rowsNumbersWidth: 35,
+                          rowsNumber: 5,
+                          rowsList: new List<int> { 5, 10, 15, 20 },
+                          sortingName: "TeamId",
+                          sortingOrder: JqGridSortingOrders.Asc,
+                          url: Url.Action("Find"),
+                          viewRecords: true,
+                          caption: "",
+                          multiSelect: false,
+                          topPager: false,
+                          autoWidth: true,
+                           beforeRequest: "beforeRequest",
+                          gridComplete: "gridComplete",
+                          postData: new { TeamName = "", TeamLeadName = "" }
+                        ).FilterToolbar(new JqGridFilterToolbarOptions() { DefaultSearchOperator = JqGridSearchOperators.Cn, StringResult = true, AutoSearch = false, SearchOnEnter = false, GroupingOperator = JqGridSearchGroupingOperators.And })
+                        .Navigator(new JqGridNavigatorOptions() { Add = false, Delete = false, View = false, Edit = false, Refresh = false, Search = false }, searchActionOptions: new JqGridNavigatorSearchActionOptions() { AdvancedSearching = true, CloneSearchRowOnAdd = false });
+                    }
+                    @grid.GetHtml()
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup" class="popUp"></div>
+<div class="popOverlay"></div>
+<script type="text/javascript" src="~/Scripts/common.js"></script>
+<script type="text/javascript">
+
+    $(function () {
+        @grid.GetJavaScript()
+
+        $("#TeamStartDate").datepicker({ dateFormat: 'mm/dd/yy' }).val('');
+
+        $("#TeamEndDate").datepicker({ dateFormat: 'mm/dd/yy' }).val('');
+
+        $(document).on('click', '.userGrid span.recipe', function () {
+            $('.popUp, .popOverlay').css('display', 'block');
+        })
+
+        $(document).on('click', '.userGrid span.teamMember', function () {
+            $('.popUp, .popOverlay').css('display', 'block');
+        })
+
+        $(document).on('click', '.popclose', function () {
+            $('.popUp, .popOverlay').css('display', 'none')
+            //$('#boxscroll4').getNiceScroll().remove();
+        })
+        var winH = $(window).height();
+        var popHeight = $('.recipeDetailsPop').height();
+        var popHei = popHeight - 70;
+        var winHei = winH - 150;
+        if (popHeight < winH) {
+            $('#boxscroll4').css('height', popHei)
+        }
+        else {
+            $('#boxscroll4').css('height', winHei)
+        }
+        //$("#boxscroll4").getNiceScroll().resize();
+
+        @*$('#btnCreateTeam').click(function () {
+            window.location.href = '@Url.Action("AssignTeam", "Team")';
+            
+        });*@
+    });
+    function beforeRequest() {
+        $.blockUI();
+    }
+
+    function gridComplete() {
+        $("#SearchTeamJqGrid").setGridParam({ postData: { TeamName: function () { return $("#TeamName").val(); }, TeamLeadName: function () { return $("#TeamLeaderName").val(); } } });
+        $.unblockUI();
+    }
+
+    $('#spanfrom').click(function () {
+        $('#TeamStartDate').datepicker('show');
+    });
+
+    $('#spanto').click(function () {
+        $('#TeamEndDate').datepicker('show');
+    });
+
+
+    function deleteTeam(TeamId) {
+        var result = confirm("Are you sure you want to delete Team?");
+        if (result == false) {
+            return;
+        }
+        $.ajax({
+            cache: false,
+            url: '@Url.Content("~/Team/Delete")',
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            type: "POST",
+            data: JSON.stringify({ id: TeamId }),
+            success: function (data) {
+                if (data.status == "success") {
+                    alert(data.message);
+                    $("#SearchTeamJqGrid").trigger("reloadGrid");
+                }
+                else if (data.status == "fail")
+                { alert(data.message); }
+            },
+            error: function () {
+                alert("Internal error - Unable to delete Team.");
+            }
+        });
+    }
+
+    function TeamMember(TeamId) {
+        $.ajax({
+            cache: false,
+            url: '@Url.Content("~/Team/getTeammberItems")',
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            type: "POST",
+            data: JSON.stringify({ TeamId: TeamId }),
+            success: function (data) {
+                $("#popup").html('');
+                var tb = "<div class='popInner addBatch recipeDetailsPop'><h1>Team Member Details</h1>";
+                tb=tb +"<div id='boxscroll4' class='recipePreDetails' style='overflow: hidden;' tabindex='5000'><table width='100%'  border='0'><tr><th style='text-align:center'>S.No</th><th>Team Name</th><th>Team Lead Name</th><th>Team Member Name</th></tr>";
+                var i = 1;
+                $.each(data, function (index, value) {
+                    var row = "<tr><td align='center'>" + i + "</td><td>" + value.TeamName + "</td><td>" + value.TeamLeadName + "</td><td>" + value.TeamMemberName + "</td></tr>";
+                    tb = tb + row;
+                    i++;
+                });
+                tb = tb + "</table></div><div class='popclose'><a href='javascript:void(0)'></a></div></div>";
+                $("#popup").html(tb);
+            },
+            error: function () {
+                alert("Internal error - Unable to show Team memebers.");
+            }
+        });
+    }
+
+    function Clearvalues() {
+        $("#TeamName").val('');
+        $("#TeamLeaderName").val('');
+        $("#TeamStartDate").val('');
+        $("#TeamEndDate").val('');
+        $("#SearchTeamJqGrid").trigger("reloadGrid");
+    }
+
+</script>

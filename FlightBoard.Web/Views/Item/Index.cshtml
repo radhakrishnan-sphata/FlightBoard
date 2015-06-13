@@ -1,0 +1,907 @@
+﻿@model FlightBoard.Web.Models.ItemModel
+@using Lib.Web.Mvc.JQuery.JqGrid;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div id="mainContainer">
+    <div class="headerWrapper">
+        @*<h1>Items</h1>*@
+        <ul class="tabedNav">
+            <li class="active"><a href="@Url.Action("Index","Item")">Search Items</a></li>
+            <li><a href="#">Assign Items</a></li>
+        </ul>
+        <button class="button tabedNavBack" onclick="BacktoDashboard()">Back</button>  
+    </div>
+    <div class="itemSearchContaier">
+        <div class="itemSearchInnerContainer">
+            @Html.HiddenFor(p => p.EventId)
+            @Html.HiddenFor(p => p.IsBack)
+            @*@Html.HiddenFor(p => p.ProductionFrom, new  {@id =  "hdnProductionFrom"  })
+            @Html.HiddenFor(p => p.ProductionTo, new { @id = "hdnProductionTo" })*@
+            <div class="itemSearchTop">
+                <div class="horizantalForm">
+                    <label>Item Name</label>
+                    @Html.TextBoxFor(x => x.ItemName, new {@class = "SearchParam" })
+                </div>
+                <div class="horizantalForm">
+                    <label>Contract#</label>
+                    @Html.TextBoxFor(x => x.EventName, new { @class = "SearchParam" })
+                </div>
+                <div class="horizantalForm">
+                    <label>Production From</label>
+                    <div class="calendarInput">
+                        @Html.TextBoxFor(x => x.ProductionFrom, "{0:MM/dd/yyyy}", new { @value = DateTime.Now.ToShortDateString(), @class = "TeamStartDate" })
+                        <span id="spanfrom" class="icon calendar"></span>
+                    </div>
+                </div>
+                <div class="horizantalForm">
+                    <label>Production To</label>
+                    <div class="calendarInput">
+                        @Html.TextBoxFor(x => x.ProductionTo, "{0:MM/dd/yyyy}", new { @value = DateTime.Now.ToShortDateString(), @class = "TeamStartDate" })
+                        <span id="spanto" class="icon calendar"></span>
+                    </div>
+                </div>
+                <div class="horizantalForm">
+                    <label>Event Start Date</label>
+                    <div class="calendarInput">
+                        @Html.TextBoxFor(x => x.EventDate, "{0:MM/dd/yyyy}", new { @value = DateTime.Now.ToShortDateString(), @class = "TeamStartDate SearchParam" })
+                        <span id="spanto" class="icon calendar"></span>
+                    </div>
+                </div>
+                <div class="horizantalForm">
+                    <label>Event End Date</label>
+                    <div class="calendarInput">
+                        @Html.TextBoxFor(x => x.EventEndDate, "{0:MM/dd/yyyy}", new { @value = DateTime.Now.ToShortDateString(), @class = "TeamStartDate SearchParam" })
+                        <span id="spanto" class="icon calendar"></span>
+                    </div>
+                </div>
+                <input type="button" class="button" value="Clear" onclick='Clearvalues();' />
+                <input type="submit" class="button" value="Search" id ="btnSearch" />
+                <input type="hidden" value="No" id="hdnSearch" />
+            </div>
+            </div>
+        </div>
+
+    <div class="userGrid">
+        <div class="addingWrapper">
+            <div class="itemsAssigned">
+                <span class="items">
+                    Items
+                    Assigned:
+                </span><span id="spanassign" class="assigned"></span><sub>of</sub><span id="spantotal" class="totalItems"></span>
+
+            </div>
+
+            <div class="subItems">
+                <span class="fl">Sub Item :</span><div class="radio">
+                    @Html.RadioButtonFor(model => model.IsSubItem, 1, new { id = "rbShowSubItem", @class = "rdClass", @checked = "checked" }) <label for="rbShowSubItem">Show</label>
+                </div>
+                <div class="radio">
+                    @Html.RadioButtonFor(model => model.IsSubItem, 0, new { id = "rbHideSubItem", @class = "rdClass" })<label for="rbHideSubItem">Hide</label>
+                </div>
+            </div>
+
+            <div class="adding">
+
+                <button style="display:none" onclick="CreateBatch();" class="button"><i class="icon add"></i>Add Batch</button>
+                <button class="button" style="display:none" ><i class="icon add"></i>Add Notes</button>
+                <button class="button red" onclick="CheckedItemListandassign(false);" style="display:none"><i class=" icon delete"></i>Un-Assign</button>
+                <button class="button green" onclick="CheckedItemListandassign(true);"><i class="icon correct"></i>Assign</button>
+            </div>
+        </div>
+    </div>
+
+        <div class="userGrid">
+            <div class="gridPanel">
+                <div class="table-responsive rmfTable pull-left width100p">
+                    <div class="jqGrid">
+                        @{
+                            var grid = new JqGridHelper<FlightBoard.Web.Models.fb_Items_View>("SearchItemJqGrid",
+                                          dataType: JqGridDataTypes.Json,
+                                          methodType: JqGridMethodTypes.Post,
+                                          pager: true,
+                                          rowsNumbers: true,
+                                          rowsNumbersWidth: 35,
+                                          rowsNumber: 20,
+                                          rowsList: new List<int> { 5, 10, 15, 20 },
+                                          sortingName: "ID",
+                                          sortingOrder: JqGridSortingOrders.Asc,
+                                          url: Url.Action("Find"),
+                                          viewRecords: true,
+                                          caption: "",
+                                          multiSelect: true,
+                                          topPager: false,
+                                          autoWidth: true,
+                                          onSelectAll :"onSelectAll",
+                                          beforeRequest:"beforeRequest",
+                                          gridComplete: "gridComplete",
+                                          onSelectRow : "onSelectRow",
+                                          
+                                          //shrinkToFit: false,
+                                //loadComplete: "disablechekbox",
+                                         // beforeSelectRow: "unselectcheckbox",
+                                           
+                                // onSelectAll: "CheckItems",
+                                          shrinkToFit: true,
+                                          postData: new { ItemName = Model.ItemName, EventContract = "", fromdate = Model.ProductionFrom, Todate = Model.ProductionTo, EventId = Model.EventId, EventDate = Model.EventDate, EventEndDate = Model.EventEndDate, ContractId = Model.EventName, Show = 1, Search = "No", IsBack = Model.IsBack }
+                                        ).FilterToolbar(new JqGridFilterToolbarOptions() { DefaultSearchOperator = JqGridSearchOperators.Cn, StringResult = true, AutoSearch = false, SearchOnEnter = false, GroupingOperator = JqGridSearchGroupingOperators.And })
+                                        .Navigator(new JqGridNavigatorOptions() { Add = false, Delete = false, View = false, Edit = false, Refresh = false, Search = false }, searchActionOptions: new JqGridNavigatorSearchActionOptions() { AdvancedSearching = true, CloneSearchRowOnAdd = false });
+                        }
+                        @grid.GetHtml()  
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="popup" class="popUp"></div>
+    <div class="popOverlay"></div>
+</div>
+<script type="text/javascript" src="@Url.Content("~/Scripts/common.js")"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#btnSearch').click(function () {
+
+            $('#hdnSearch').val("Yes");
+
+            // $("#SearchItemJqGrid").trigger("reloadGrid");
+            var txtfrom = $('#ProductionFrom').val();
+            var txtto = $('#ProductionTo').val();
+            var startDate = $('#ProductionFrom').val().replace('-', '/');
+            var endDate = $('#ProductionTo').val().replace('-', '/');
+            var startEventDate = $('#EventDate').val().replace('-', '/');
+            var startEventEndDate = $('#EventEndDate').val().replace('-', '/');
+
+            if ((startDate == "") && (endDate == ""))
+            {
+
+            }
+            else if ((startDate != "") && (endDate != ""))
+            {
+                if (isDate(startDate))
+                {
+
+                }
+
+                else
+                {
+                    alert('Invalid Production From Date');
+                    return false;
+                }
+                if (isDate(startDate))
+                {
+
+                }
+
+                else {
+                    alert('Invalid Production From Date');
+                    return false;
+                }
+
+            }
+
+            else if ((startDate == "") && (endDate != ""))
+            {
+                    alert('Please select Production From Date');
+                    return false;
+            }
+            else if ((startDate != "") && (endDate == ""))
+            {
+                alert('Please select Production To Date');
+                return false;
+            }
+
+            if ((startDate) > (endDate)) {
+                debugger;
+                //alert((startDate));
+                //alert((endDate));
+                alert('To Production date should be greater than From Production date');
+                return false;
+
+            }
+
+            //added by ravi
+            //if ((startEventDate == "") && (EventEndDate == "")) {
+
+            //}
+            //else if ((startEventDate != "") && (EventEndDate != "")) {
+            //    if (isDate(startDate)) {
+
+            //    }
+
+            //    else {
+            //        alert('Invalid StartEventDate');
+            //        return false;
+            //    }
+            //    if (isDate(startEventDate)) {
+
+            //    }
+
+            //    else {
+            //        alert('Invalid StartEventDate');
+            //        return false;
+            //    }
+
+            //}
+
+            if ((startEventDate == "") && (startEventEndDate != "")) {
+                alert('Please select Event Start Date');
+                return false;
+            }
+
+            if ((startEventDate != "") && (startEventEndDate == "")) {
+                alert('Please select Event End Date');
+                return false;
+            }
+
+            if ((startEventDate) > (startEventEndDate)) {
+
+                alert('Event End date should be greater than Event Start date');
+                return false;
+
+            }
+            //end
+
+            $("#SearchItemJqGrid").trigger("reloadGrid");
+        });
+
+        $('.rdClass').click(function () {
+            if (jQuery("#SearchItemJqGrid").jqGrid('getGridParam', 'records') != 0) {
+                $("#btnSearch").click();
+            }
+        });
+
+        $(".SearchParam").keyup(function (event) {
+            if (event.keyCode == 13) {
+                $("#btnSearch").click();
+            }
+        });
+        function isDate(txtDate)
+        {
+            var currVal = txtDate;
+            if(currVal == '')
+                return false;
+
+            var rxDatePattern = /^(\d{1,2})(\/|-)(\d{1,2})(\/|-)(\d{4})$/; //Declare Regex
+            var dtArray = currVal.match(rxDatePattern); // is format OK?
+
+            if (dtArray == null)
+                return false;
+
+            //Checks for mm/dd/yyyy format.
+            dtMonth = dtArray[1];
+            dtDay= dtArray[3];
+            dtYear = dtArray[5];
+
+            if (dtMonth < 1 || dtMonth > 12)
+                return false;
+            else if (dtDay < 1 || dtDay> 31)
+                return false;
+            else if ((dtMonth==4 || dtMonth==6 || dtMonth==9 || dtMonth==11) && dtDay ==31)
+                return false;
+            else if (dtMonth == 2)
+            {
+                var isleap = (dtYear % 4 == 0 && (dtYear % 100 != 0 || dtYear % 400 == 0));
+                if (dtDay> 29 || (dtDay ==29 && !isleap))
+                    return false;
+            }
+            return true;
+        }
+
+    });
+
+
+
+
+
+    $(function () {
+        @grid.GetJavaScript()
+        //alert($("#IsBack").val());
+        if ($("#IsBack").val() == "False")
+        {
+            $("#ProductionFrom").datepicker({ dateFormat: 'mm/dd/yy' }).val('');
+            $("#ProductionTo").datepicker({ dateFormat: 'mm/dd/yy' }).val('');
+            $("#EventDate").datepicker({ dateFormat: 'mm/dd/yy' }).val('');
+            $("#EventEndDate").datepicker({ dateFormat: 'mm/dd/yy' }).val('');
+        }
+
+        else
+        {
+            $("#ProductionFrom").datepicker({ dateFormat: 'mm/dd/yy' });
+            $("#ProductionTo").datepicker({ dateFormat: 'mm/dd/yy' });
+            $("#EventDate").datepicker({ dateFormat: 'mm/dd/yy' });
+            $("#EventEndDate").datepicker({ dateFormat: 'mm/dd/yy' });
+        }
+
+
+        $(document).on('click', '.userGrid span.recipe', function () {
+            $('.popUp, .popOverlay').css('display', 'block');
+        })
+
+        $(document).on('click', '.userGrid span.teamMember', function () {
+            $('.popUp, .popOverlay').css('display', 'block');
+        })
+
+        $(document).on('click', '.popclose', function () {
+            $('.popUp, .popOverlay').css('display', 'none')
+            //$('#boxscroll4').getNiceScroll().remove();
+        })
+        //var winH = $(window).height();
+        //var popHeight = $('.recipeDetailsPop').height();
+        //var popHei = popHeight - 70;
+        //var winHei = winH - 150;
+        //if (popHeight < winH) {
+        //    $('#boxscroll4').css('height', popHei)
+        //}
+        //else {
+        //    $('#boxscroll4').css('height', winHei)
+        //}
+        //$("#boxscroll4").getNiceScroll().resize();
+
+    });
+
+    function gridComplete() {
+        $("#SearchItemJqGrid").setGridParam({ postData: { ItemName: function () { return $("#ItemName").val(); }, EventContract: function () { return $("#EventName").val(); }, EventDate: function () { return $("#EventDate").val(); }, EventEndDate: function () { return $("#EventEndDate").val(); }, fromdate: function () { return $("#ProductionFrom").val(); }, Todate: function () { return $("#ProductionTo").val(); }, ContractId: function () { return $("#EventName").val(); }, Show: function () { return $("input[name=IsSubItem]:checked").val(); }, Search: function () { return $("#hdnSearch").val(); }, Search: function () { return $("#hdnSearch").val(); }, IsBack: function () { return $("#IsBack").val(); } } });
+        var IteamInfo = new Object();
+        var ItemList1 = [];
+        //debugger;
+        // var ids = jQuery("#SearchItemJqGrid").jqGrid('getGridParam', 'selrow');
+        var $grid = jQuery("#SearchItemJqGrid"), rows = $grid[0].rows, cRows = rows.length,
+            iRow, rowId, row, cellsOfRow;
+
+        //var eventIds = '';
+        //var checkDistinctEventId = '';
+        for (iRow = 0; iRow < cRows; iRow++) {
+            row = rows[iRow];
+            if ($(row).hasClass("jqgrow")) {
+                //ss.push(row.cells);
+                cellsOfRow = row.cells;
+
+                    var o = new Object();
+                    //var k = $(cellsOfRow[1]).find("input[type='checkbox']").attr('id');
+                    //var s = k.split('_');
+                    o['Key'] = $(cellsOfRow[13]).text();
+                    o['EventId'] = $(cellsOfRow[11]).text();
+                       ItemList1.push(o);
+            }
+        }
+
+        if (ItemList1.length <= 0) {
+            $("#spantotal").html("0");
+            $("#spanassign").text("0");
+        }
+        else  if (ItemList1.length > 0) {
+
+            IteamInfo.ItemList = ItemList1;
+            //IteamInfo.EventIds = eventIds;
+           // debugger;
+            $.ajax({
+                url: "@Url.Action("GetAssignitemscount", "Item")",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    itemModel: IteamInfo
+                    //EventId: $("#EventId").val()
+                }),
+                type: 'Post',
+                success: function (data) {
+                    //debugger;
+                    var o = data.split('_');
+                    $("#spantotal").html(o[0]);
+                    $("#spanassign").text(o[1]);
+                },
+                error: function (e, textStatus, jqXHR) {
+                }
+
+            });
+        }
+
+
+        $('#alertmod_SearchItemJqGrid').hide();
+        var gridData = {};
+        var $grid = jQuery("#SearchItemJqGrid"), rows = $grid[0].rows, cRows = rows.length,
+            iRow, rowId, row, cellsOfRow;
+
+
+        for (iRow = 0; iRow < cRows; iRow++) {
+            row = rows[iRow];
+            if ($(row).hasClass("jqgrow")) {
+                //ss.push(row.cells);
+
+                cellsOfRow = row.cells;
+                if ($(cellsOfRow[10]).text() != "false")
+                    $(cellsOfRow[1]).find("input").attr("disabled", "disabled");
+                //alert($(cellsOfRow[1]).find('input:checked'));
+                //var cells
+                // row represent the row with cellsOfRow.length cells.
+                // So one can use for loop with iCol between 0 and cellsOfRow.length
+                // cellsOfRow[iCol] represent the cell with the index iCol
+                // and $(cellsOfRow[iCol]).text() - the text of the cell
+            }
+        }
+        $.unblockUI();
+    }
+
+    function beforeRequest()
+    {
+        $.blockUI();
+    }
+    function onSelectAll() {
+       // alert('hi');
+        var $grid = jQuery("#SearchItemJqGrid"), rows = $grid[0].rows, cRows = rows.length,
+           iRow, rowId, row, cellsOfRow;
+        //alert(rows);
+
+        for (iRow = 0; iRow < cRows; iRow++) {
+            row = rows[iRow];
+            if ($(row).hasClass("jqgrow")) {
+                //ss.push(row.cells);
+
+                cellsOfRow = row.cells;
+                if ($(cellsOfRow[10]).text() != "false")
+                    $(cellsOfRow[1]).find("input").attr('checked', false);
+
+            }
+        }
+    }
+
+    function onSelectRow()
+    {
+
+        var $grid = jQuery("#SearchItemJqGrid"), rows = $grid[0].rows, cRows = rows.length,
+           iRow, rowId, row, cellsOfRow
+        for (iRow = 0; iRow < cRows; iRow++) {
+            row = rows[iRow];
+            if ($(row).hasClass("jqgrow")) {
+                //ss.push(row.cells);
+
+                cellsOfRow = row.cells;
+               //alert($(cellsOfRow[10]).text());
+                if ($(cellsOfRow[10]).text() != "false")
+                    $(cellsOfRow[1]).find("input").attr('checked', false);
+            }
+        }
+    }
+
+    ////on load based on teamlead details disable the checkbox
+    //function disablechekbox(data) {
+    //    if (data.rows.length > 0) {
+    //        for (var i = 0; i < data.rows.length; i++) {
+    //            if (data.rows[i].cell[3] != null) {
+    //                $("#jqg_SearchItemJqGrid_" + data.rows[i].id).attr("disabled", true);
+    //            }
+    //        }
+    //    }
+    //}
+
+    ////On top selection of checkbox unselect the disabled checkboxes
+    //function CheckItems(data) {
+    //    if (data.length > 0) {
+    //        for (var i = 0; i < data.length; i++) {
+    //            if ($("#jqg_SearchItemJqGrid_" + data[i]).attr("disabled")) {
+    //                $("#jqg_SearchItemJqGrid_" + data[i]).attr("checked", false);
+    //            }
+    //        }
+    //    }
+    //}
+
+    //before select the row disabled checkbox to be unselect
+    function unselectcheckbox(rowid, e) {
+        if ($("#jqg_SearchItemJqGrid_" + rowid).attr("checked")) {
+            return false;
+        }
+    }
+
+    $('#spanfrom').click(function () {
+        $('#ProductionFrom').datepicker('show');
+    });
+
+    $('#spanto').click(function () {
+        $('#ProductionTo').datepicker('show');
+    });
+    //var ss = [];
+    function CheckedItemListandassign(Isassign) {
+
+        var IteamInfo = new Object();
+        var ItemList1 = [];
+        // var ids = jQuery("#SearchItemJqGrid").jqGrid('getGridParam', 'selrow');
+        var $grid = jQuery("#SearchItemJqGrid"), rows = $grid[0].rows, cRows = rows.length,
+            iRow, rowId, row, cellsOfRow;
+
+        //var eventIds = '';
+        //var checkDistinctEventId = '';
+        for (iRow = 0; iRow < cRows; iRow++) {
+            row = rows[iRow];
+            if ($(row).hasClass("jqgrow")) {
+                //ss.push(row.cells);
+                cellsOfRow = row.cells;
+                if($(cellsOfRow[1]).find("input[type='checkbox']").is(':checked'))
+                {
+                    var o = new Object();
+                    //var k = $(cellsOfRow[1]).find("input[type='checkbox']").attr('id');
+                    //var s = k.split('_');
+                    o['Key'] = $(cellsOfRow[13]).text();
+                    o['Value'] = $(cellsOfRow[2]).text();
+                    o['EventId'] = $(cellsOfRow[11]).text();
+                    o['Quantity'] = $(cellsOfRow[12]).text();
+                    o['ContractId'] = $(cellsOfRow[3]).text();
+                    ItemList1.push(o);
+
+                }
+            }
+        }
+
+        if (ItemList1.length > 0) {
+
+            IteamInfo.ItemList = ItemList1;
+            IteamInfo.EventId = $("#EventId").val();
+            IteamInfo.ItemName = $("#ItemName").val();
+            IteamInfo.EventName = $("#EventName").val();
+            IteamInfo.ProductionFrom = $('#ProductionFrom').val().replace('-', '/');
+            IteamInfo.ProductionTo = $('#ProductionTo').val().replace('-', '/');
+            IteamInfo.EventDate = $('#EventDate').val().replace('-', '/');
+            IteamInfo.EventEndDate = $('#EventEndDate').val().replace('-', '/');
+                   //IteamInfo.EventIds = eventIds;
+
+            if (Isassign) {
+                $.blockUI();
+                $.ajax({
+                    url: "@Url.Action("CheckforItemTeammebers", "Item")",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        itemModel: IteamInfo
+                    }),
+                    type: 'Post',
+                    success: function (data) {
+                        var resultmsg;
+                        if (data.status == "Fail") {
+                            var resultassign = confirm(data.message);
+                            if (resultassign) {
+                                resultmsg = true;
+                            }
+                            else
+                            {
+                                resultmsg = false;
+                            }
+                        }
+                        else if (data.status == "success")
+                            resultmsg = true;
+
+                        if (resultmsg) {
+                            $.ajax({
+                                url: "@Url.Action("AssignItem", "Item")",
+                                contentType: "application/json",
+                                data: JSON.stringify({
+                                    itemModel: IteamInfo
+                                }),
+                                type: 'Post',
+                                success: function (data) {
+                                    $("#mainContainer").html(data);
+                                    $.unblockUI();
+                                },
+                                error: function (e, textStatus, jqXHR) {
+                                    alert(e);
+                                    $.unblockUI();
+                                }
+                            });
+                        }
+                        else {
+                            $.unblockUI();
+                        }
+                    },
+                    error: function (e, textStatus, jqXHR) {
+                        alert(e);
+                        $.unblockUI();
+                    }
+                });
+            }
+            else {
+                var unassignresult = confirm("Are you sure you want to unassign the selected items?");
+                if (unassignresult) {
+                    $.ajax({
+                        url: "@Url.Action("UnAssignItem", "Item")",
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            itemModel: IteamInfo
+                        }),
+                        type: 'Post',
+                        success: function (data) {
+                            alert(data.message);
+                            $("#SearchItemJqGrid").trigger("reloadGrid");
+                        },
+                        error: function (e, textStatus, jqXHR) {
+                        }
+                    });
+                }
+            }
+        }
+        else {
+            alert("Please select atleast one item to assign.");
+        }
+    }
+
+    function AddProductionDates() {
+        var IteamInfo = new Object();
+        var ItemList1 = [];
+        var checkBoxes = $("td input[type='checkbox']");
+        $.each(checkBoxes, function () {
+            if ($(this).is(':checked')) {
+                var o = new Object();
+                var k = $(this).attr('id');
+                var s = k.split('_');
+                o['Key'] = s[s.length - 1];
+                o['Value'] = $(this).parent().next().text();
+                ItemList1.push(o);
+            }
+        });
+        if (ItemList1.length > 0) {
+            IteamInfo.ItemList = ItemList1;
+            IteamInfo.EventId = $("#EventId").val();
+                $.ajax({
+                    url: "@Url.Action("Index", "ProductionDates")",
+                    contentType: "application/json",
+                data: JSON.stringify({
+                    productionModel: IteamInfo
+                }),
+                type: 'Post',
+                success: function (data) {
+                    $("#popup").html('');
+                    $("#popup").html(data);
+                    $('.popUp, .popOverlay').css('display', 'block');
+            },
+            error: function (e, textStatus, jqXHR) {
+            }
+        });//end of Ajax
+
+    }//End Of ItemList1
+    else { alert("Please select atleast one item."); }
+    }
+
+    function TeamMember(Itemid, EventId) {
+
+        $.ajax({
+            cache: false,
+            url: '@Url.Content("~/Item/GetTeammberonItems")',
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            type: "POST",
+            data: JSON.stringify({ ItemId: Itemid, EventId: EventId }),
+            success: function (data) {
+                $("#popup").html('');
+                $("#popup").removeClass('multipleProductionDate');
+                var tb = "<div class='popInner addBatch recipeDetailsPop'><h1>Team Member Details</h1>";
+                tb = tb + "<div id='boxscroll4' class='recipePreDetails' style='overflow: hidden;' tabindex='5000'><table width='100%'  border='0'><tr><th style='text-align:center'>S.No</th><th>Team Name</th><th>Team Lead Name</th><th>Team Member Name</th></tr>";
+                var i = 1;
+                $.each(data, function (index, value) {
+                    var row = "<tr><td align='center'>" + i + "</td><td>" + value.TeamName + "</td><td>" + value.TeamLeadName + "</td><td>" + value.TeamMemberName + "</td></tr>";
+                    tb = tb + row;
+                    i++;
+                });
+                tb = tb + "</table></div><div class='popclose'><a href='javascript:void(0)'></a></div></div>";
+                $("#popup").html(tb);
+
+            },
+            error: function () {
+                alert("Internal error - Unable to show Team memebers.");
+                $.unblockUI();
+            }
+        });
+    }
+
+    @*function RecipeDetails(Itemid, ItemName) {
+        $("#popup").html('');
+        var url = '@Url.Action("Ingredient", "Dashboard")';
+        var reUrl = url + '?id=' + Itemid + "&eventId=" + $("#EventId").val() + "&itemName=" + ItemName;
+        $.post(reUrl, {}, function (resp) {
+            $('#popup').html(resp);
+        });
+    }*@
+    function GetRecipeDetails(eventId, ItemId, Quantity, asID) {
+        if (ItemId > 0 && eventId > 0) {
+            //$('.popUp, .popOverlay').css('display', 'none');
+
+            //if ($("#Quantity").val() != undefined)
+            //{
+            //    Quantity = $("#Quantity").val();
+            //}
+            $("#popup").removeClass('multipleProductionDate');
+            $("#popup").empty();
+            $.blockUI();
+            $.ajax({
+                url: "@Url.Action("Receipe", "DashBoard")",
+                contentType: "application/json",
+            type: 'Post',
+            data: JSON.stringify({
+                itemId: ItemId,
+                eventId: eventId,
+                Quantity: Quantity,
+                AssemblageID: ItemId
+            }),
+            success: function (data) {
+
+                $("#popup").html('');
+                $("#popup").html(data);
+                $('.popUp, .popOverlay').css('display', 'block');
+                $.unblockUI();
+            },
+            error: function (e, textStatus, jqXHR) {
+                alert(e);
+            }
+        });//end of Ajax
+
+    }
+    }
+
+    //Added by ravi
+    function Notes(Itemid, EventId) {
+        //alert(Itemid);
+        $("#popup").html('');
+        var url = '@Url.Action("Notes", "Dashboard")';
+        var reUrl = url + '?id=' + Itemid + "&eventId=" + EventId;
+        //alert(reUrl);
+        $.post(reUrl, {}, function (resp) {
+            $('#popup').html(resp);
+            $('.popUp, .popOverlay').css('display', 'block');
+        });
+    }
+    //end
+    function Clearvalues() {
+        $("#ItemName").val('');
+        $("#EventName").val('');
+        $("#ProductionFrom").val('');
+        $("#EventDate").val('');
+        $("#EventEndDate").val('');
+        $("#ProductionTo").val('');
+        $('#hdnSearch').val("No");
+        $("#SearchItemJqGrid").trigger("reloadGrid");
+    }
+
+    function CreateBatch() {
+        var IteamInfo = new Object();
+        var ItemList1 = [];
+        var checkBoxes = $("td input[type='checkbox']");
+        $.each(checkBoxes, function () {
+            if ($(this).is(':checked')) {
+                var o = new Object();
+                var k = $(this).attr('id');
+                var s = k.split('_');
+                o['Key'] = s[s.length - 1];
+                o['Value'] = $(this).parent().next().text();
+                //alert($(this).parent().next().next().next().next().text());
+                ItemList1.push(o);
+            }
+        });
+        //alert(ItemList1.length);
+        if (ItemList1.length > 0) {
+            IteamInfo.ItemList = ItemList1;
+            IteamInfo.EventId = $("#EventId").val();
+
+            $.ajax({
+                url: "@Url.Action("CreateBatch", "Item")",
+                contentType: "application/json",
+            data: JSON.stringify({
+                itemModel: IteamInfo
+            }),
+            type: 'Post',
+            success: function (data) {
+                $("#popup").html('');
+                $("#popup").html(data);
+                $('.popUp, .popOverlay').css('display', 'block');
+            },
+            error: function (e, textStatus, jqXHR) {
+            }
+        });//end of Ajax
+
+    }//End Of ItemList1
+    else { alert("Please select atleast one item."); }
+    }
+
+    function ShowProduction(cellValue, options, rowObject)
+    {
+        var str = [];
+
+        str = rowObject[3].split('~');
+
+        if (str[0] == "Multiple")
+        {
+            return "<a title='Show ProductionDates' href='#' class='multipleIcon icon' onclick='ShowProductionDates(" + str[1] + "," + rowObject[9] + ")'></a>";
+        }
+        else
+        {
+            return str[0];
+        }
+
+    }
+    function ShowSubitemsInBold(cellValue, options, rowObject)
+    {
+        if (rowObject[8] == true)
+        {
+            return cellValue;
+        }
+        else
+        {
+            return "<b>" + cellValue + "</b>";
+        }
+
+    }
+
+    function ShowBtachIcon(cellValue, options, rowObject)
+    {
+        if (cellValue == "Yes") {
+            return "<span class='icon correctGreen' title='Yes'></span>";
+        }
+        else {
+            //return "<span class='icon deleteGreen' title='No'></span>";
+            return "";
+        }
+    }
+
+    function ShowProductionDates(itemId,eventId)
+    {
+        if (itemId > 0 && eventId > 0)
+        {
+            $.ajax({
+                url: "@Url.Action("ShowProductionDates", "Item")",
+                contentType: "application/json",
+            data: JSON.stringify({
+                itemId: itemId,
+                eventId:eventId
+            }),
+            type: 'Post',
+            success: function (data) {
+                $("#popup").html('');
+                $("#popup").html(data);
+                $("#popup").addClass('multipleProductionDate');
+                $('.popUp, .popOverlay').css('display', 'block');
+            },
+            error: function (e, textStatus, jqXHR) {
+                alert(e);
+            }
+        });//end of Ajax
+      }
+    }
+    function ShowNotes(itemId,eventId)
+    {
+        if (itemId > 0 && eventId > 0)
+        {
+            $.ajax({
+                url: "@Url.Action("ShowNotes", "Item")",
+                contentType: "application/json",
+                type: 'Post',
+            data: JSON.stringify({
+                itemId: itemId,
+                eventId:eventId
+            }),
+
+            success: function (data) {
+                $("#popup").html('');
+                //alert('hai')
+                $("#popup").html(data);
+                //$("#popup").addClass('multipleProductionDate');
+                $('.popUp, .popOverlay').css('display', 'block');
+            },
+            error: function (e, textStatus, jqXHR) {
+                alert(e);
+            }
+        });//end of Ajax
+    }
+    }
+    function BacktoDashboard() {
+
+        //window.glocation = '/Dashboard/Index?ID='+$("#EventId").val();
+        @*if ('@Session["itemname"]' != null)
+
+        {
+            '@Session["itemname"]' = null;
+        }*@
+
+        var dashboardURL = '@Url.Action("Index", "Dashboard")';
+        window.location = dashboardURL + "?ID=" + $("#EventId").val();
+    }
+
+    function ClosePopup()
+    {
+        $("#popup").html('');
+        $('.popUp, .popOverlay').css('display', 'none');
+    }
+
+</script>

@@ -1,0 +1,69 @@
+﻿@using FlightBoard.Web.Models;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Continental Catering and Events</title>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css' />
+    @*@Styles.Render("~/Content/css")
+        @Scripts.Render("~/bundles/modernizr")*@
+    <link href="@Url.Content("~/Content/css/normalize.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/css/styles.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/css/jquery.mCustomScrollbar.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/jquery-ui.css")" rel="stylesheet" />
+    <link rel="shortcut icon" href="@Url.Content("/favicon.ico")" type="image/x-icon" />
+    <link rel="icon" href="@Url.Content("/favicon.ico")" type="image/x-icon" />
+</head>
+<body>
+    <div class="mainWrapper">
+        <div class="main">
+            <div class="header">
+                <h1 class="logo"><a href="#"><img src="@Url.Content("~/Content/images/logo-innerpage.jpg")" alt="" /></a></h1>
+                <div class="loggedUser">
+                    <span>Hi</span>@SessionPersister.DisplayName
+                </div>
+                <div class="topMenu">
+                    <a class="mobile-Menu openMenu" href="javascript:void(0)"></a>
+                    <ul>
+                        <li class="alert"><a href="#"><span class="icon alert"></span>Alert</a></li>
+                        @if ((int)@SessionPersister.Roles == 1)
+                        {
+                            @*<li class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Dashboard" ? "active" : "")"><a href="@Url.Action("Index","Dashboard")"><span class="icon dashboard"></span>Dashboard</a></li>*@
+                            <li class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Dashboard" ? "active" : "")">><a href="@Url.Action("Index","Dashboard")"><span class="icon events"></span>Events</a></li>
+                            <li class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Item" ? "active" : "")"><a href="@Url.Action("Index", "Item")"><span class="icon items"></span>Items</a></li>
+                            <li><a href="#"><span class="icon flightBoard"></span>Flight Board</a></li>
+                            <li class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Team" ? "active" : "")"><a href="@Url.Action("Index","Team")"><span class="icon teams"></span>Teams</a></li>
+                            <li class="@(ViewContext.RouteData.Values["Controller"].ToString() == "User" ? "active" : "")"><a href="@Url.Action("Index","User")"><span class="icon users"></span>Users</a></li>
+                        }
+                        @if ((int)@SessionPersister.Roles == 2)
+                        {
+                            @*<li class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Dashboard" ? "active" : "")"><a href="#"><span class="icon dashboard"></span>Dashboard</a></li>*@
+                            <li class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Dashboard" ? "active" : "")">><a href="@Url.Action("Index","Dashboard")"><span class="icon events"></span><br />Events</a></li>
+                            <li class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Item" ? "active" : "")"><a href="@Url.Action("Index", "Item")"><span class="icon items"></span>Items</a></li>
+                            <li><a href="#"><span class="icon flightBoard"></span><br />Flight Board</a></li>
+                            <li class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Team" ? "active" : "")"><a href="#"><span class="icon teams"></span>Teams</a></li>
+                            <li class="@(ViewContext.RouteData.Values["Controller"].ToString() == "User" ? "active" : "")"><a href="#"><span class="icon users"></span>Users</a></li>
+                        }
+                        <li class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Account" ? "active" : "")"><a href="@Url.Action("ChangePassword","Account")"><span class="icon settings"></span>Settings</a></li>
+                        <li><a href="@Url.Action("Logoff","Account")"><span class="icon logout"></span>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="contentContainer">
+
+                @Scripts.Render("~/bundles/jquery")
+                @RenderSection("scripts", required: false)
+                <script src="@Url.Content("~/Scripts/jquery-ui.js")"></script>
+                <script src="@Url.Content("~/Scripts/jquery.jqGrid.min.js")"></script>
+                <script src="@Url.Content("~/Scripts/jqGridFormatters.js")"></script>
+                <script src="@Url.Content("~/Scripts/grid.locale-en.js")"></script>
+                <script src="@Url.Content("~/Scripts/jquery.blockUI.js")"></script>
+                @*<script src="~/Scripts/jquery.nicescroll.min.js"></script>*@
+                    <script src="@Url.Content("~/Scripts/jquery.mCustomScrollbar.concat.min.js")"></script>
+                <script src="@Url.Content("~/Scripts/common.js")"></script>
+                @RenderBody()
+                </div>
+        </div>
+    </div>
+</body>
+</html>

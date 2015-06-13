@@ -1,0 +1,111 @@
+﻿@model FlightBoard.Web.Models.UserModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Create";
+}
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    <div class="loginContainer">
+        <div class="loginForm userManageForm">
+            <ul>
+                <li class="backTO">@Html.ActionLink("<< Back to User Management", "Index")</li>
+                <li><h3>Create User</h3></li>
+                <li>
+                    @Html.DropDownListFor(m => m.RoleId, Model.RolesList,"Select role")
+                    @Html.ValidationMessageFor(model => model.RoleId)
+                </li>
+                <li>
+                    @Html.TextBoxFor(m => m.FirstName, new { @class = "textbox", @placeholder = "First Name", @maxlength = "50" })
+                    @Html.ValidationMessageFor(model => model.FirstName)
+                </li>
+                <li>
+                    @Html.TextBoxFor(m => m.LastName, new { @class = "textbox", @placeholder = "Last Name", @maxlength = "50" })
+                    @Html.ValidationMessageFor(model => model.LastName)
+                </li>
+                <li>
+                    @Html.TextBoxFor(m => m.SSN, new { @class = "textbox", @placeholder = "Last 4 Digits of SSN" })
+                    @Html.ValidationMessageFor(model => model.SSN)
+                </li>
+                <li>
+                    @Html.TextBoxFor(m => m.UserName, new { @class = "textbox", @placeholder = "Email", @maxlength = "150" })
+                    <span class="field-validation-error-display">This will be your username.</span>
+                    @Html.ValidationMessageFor(model => model.UserName)
+                </li>
+                <li><input name="" type="submit" class="button medium" value="Create" /> <input name="" type="reset" class="button medium" value="Reset" onclick="location.href='@Url.Action("Create", "User")'" /></li>
+            </ul>
+        </div>
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+@Scripts.Render("~/bundles/inputmask")
+    <script type="text/javascript" language="javascript">
+
+        //var specialKeys = new Array();
+        //specialKeys.push(8); //Backspace
+        //function IsNumeric(e) {
+        //    var keyCode = e.which ? e.which : e.keyCode
+        //    var ret = ((keyCode >= 48 && keyCode <= 57) || specialKeys.indexOf(keyCode) != -1);
+        //    alert(ret);
+        //    document.getElementById("error").style.display = ret ? "none" : "inline";
+        //    return ret;
+        //}
+
+        $(document).ready(function () {         
+            $("input#SSN").inputmask("9999", { placeholder: "____", clearIncomplete: true });
+            $(document).on("click", "#RoleId-menu .ui-menu-item", function (event) {
+                var selecValue = $(this).attr("id")
+                //var selectSpanValue = $("#RoleId-button .ui-selectmenu-text").text();
+                var id = selecValue.replace('ui-id-', '');
+                //alert(id);
+
+                if (id == 3) {
+                    $("#SSN").attr("readonly", true);
+                    $("#UserName").attr("readonly", true);
+                    $("#SSN").val('');
+                    $("#UserName").val('');
+                }
+                else {
+                    $("#SSN").attr("readonly", false);
+                    $("#UserName").attr("readonly", false);
+                }
+
+            });
+        
+            ManageControls($("#RoleId").val());
+            $("#RoleId").change(function () {
+                var selectedValue = $(this)[0].value;
+                ManageControls(selectedValue);
+            });
+
+        });
+
+
+        function ManageControls(selectedValue)
+        {
+            if (selectedValue == 2) {
+                $("#SSN").attr("disabled", "disabled");
+                $("#SSN").val("");
+                $("#UserName").attr("disabled", "disabled");
+                $("#UserName").val("");
+                    
+            }
+            else if (selectedValue == 3) {
+                $("#SSN").attr("disabled", "disabled");
+                $("#SSN").val("");
+                $("#UserName").attr("disabled", "disabled");
+                $("#UserName").val("");
+            }
+            else
+            {
+                $("#SSN").prop("disabled",false);
+                $("#UserName").prop("disabled",false);
+                  
+            }
+        }
+    </script>
+}
+
+

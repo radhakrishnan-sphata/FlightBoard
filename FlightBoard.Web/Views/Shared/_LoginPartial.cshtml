@@ -1,0 +1,12 @@
+﻿@using FlightBoard.Web.Models
+@if (SessionPersister.Username !=null)
+{   
+    <ul class="nav navbar-nav navbar-right">
+        <li>
+            @Html.ActionLink("Hello " + SessionPersister.DisplayName + "!", "Manage", "Account", routeValues: null, htmlAttributes: new { title = "Manage" })
+        </li>
+        <li>@Html.ActionLink("LogOff","Logoff","Account")</li>
+    </ul>
+   
+}
+

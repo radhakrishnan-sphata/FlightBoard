@@ -1,0 +1,251 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="FlightBoardModelStoreContainer" CdmEntityContainer="FlightBoardEntities">
+    <EntitySetMapping Name="AssignItems">
+      <EntityTypeMapping TypeName="FlightBoardModel.AssignItem">
+        <MappingFragment StoreEntitySet="AssignItems">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="ItemId" ColumnName="ItemId" />
+          <ScalarProperty Name="EventId" ColumnName="EventId" />
+          <ScalarProperty Name="Notes" ColumnName="Notes" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_AssignedTeam">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_AssignedTeam">
+        <MappingFragment StoreEntitySet="fb_AssignedTeam">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="AssignItemID" ColumnName="AssignItemID" />
+          <ScalarProperty Name="MemberID" ColumnName="MemberID" />
+          <ScalarProperty Name="LeadID" ColumnName="LeadID" />
+          <ScalarProperty Name="TeamID" ColumnName="TeamID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_Batches">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_Batches">
+        <MappingFragment StoreEntitySet="fb_Batches">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="Color" ColumnName="Color" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_BatchItems">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_BatchItems">
+        <MappingFragment StoreEntitySet="fb_BatchItems">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="BatchID" ColumnName="BatchID" />
+          <ScalarProperty Name="ItemID" ColumnName="ItemID" />
+          <ScalarProperty Name="EventID" ColumnName="EventID" />
+          <ScalarProperty Name="IsSubItem" ColumnName="IsSubItem" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_DeviceUnits">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_DeviceUnits">
+        <MappingFragment StoreEntitySet="fb_DeviceUnits">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="DeviceUnitName" ColumnName="DeviceUnitName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_Events">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_Events">
+        <MappingFragment StoreEntitySet="fb_Events">
+          <ScalarProperty Name="Contract" ColumnName="Contract" />
+          <ScalarProperty Name="EventName" ColumnName="EventName" />
+          <ScalarProperty Name="EventDate" ColumnName="EventDate" />
+          <ScalarProperty Name="NoofItems" ColumnName="NoofItems" />
+          <ScalarProperty Name="TeamLead" ColumnName="TeamLead" />
+          <ScalarProperty Name="Description" ColumnName="Description" />
+          <ScalarProperty Name="DateOfProduction" ColumnName="DateOfProduction" />
+          <ScalarProperty Name="UnitId" ColumnName="UnitId" />
+          <ScalarProperty Name="UnitName" ColumnName="UnitName" />
+          <ScalarProperty Name="MealName" ColumnName="MealName" />
+          <ScalarProperty Name="EventId" ColumnName="EventId" />
+          <ScalarProperty Name="FSSeventlist_intid" ColumnName="FSSeventlist_intid" />
+          <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_FlightBoardConfig">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_FlightBoardConfig">
+        <MappingFragment StoreEntitySet="fb_FlightBoardConfig">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="TemplateID" ColumnName="TemplateID" />
+          <ScalarProperty Name="NoofDays" ColumnName="NoofDays" />
+          <ScalarProperty Name="TransitionTime" ColumnName="TransitionTime" />
+          <ScalarProperty Name="EventStartDate" ColumnName="EventStartDate" />
+          <ScalarProperty Name="EventEndDate" ColumnName="EventEndDate" />
+          <ScalarProperty Name="ProductionFrom" ColumnName="ProductionFrom" />
+          <ScalarProperty Name="ProductionTo" ColumnName="ProductionTo" />
+          <ScalarProperty Name="EventID" ColumnName="EventID" />
+          <ScalarProperty Name="DeviceUnitID" ColumnName="DeviceUnitID" />
+          <ScalarProperty Name="PrepAreaId" ColumnName="PrepAreaId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_Items">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_Items">
+        <MappingFragment StoreEntitySet="fb_Items">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Item_intid" ColumnName="Item_intid" />
+          <ScalarProperty Name="ItemEvent_intid" ColumnName="ItemEvent_intid" />
+          <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+          <ScalarProperty Name="ItemName" ColumnName="ItemName" />
+          <ScalarProperty Name="IsSubItem" ColumnName="IsSubItem" />
+          <ScalarProperty Name="UniQueItemIds" ColumnName="UniQueItemIds" />
+          <ScalarProperty Name="HasSubItem" ColumnName="HasSubItem" />
+          <ScalarProperty Name="PrepAreaId" ColumnName="PrepAreaId" />
+          <ScalarProperty Name="PrepAreaName" ColumnName="PrepAreaName" />
+          <ScalarProperty Name="Notes" ColumnName="Notes" />
+          <ScalarProperty Name="ItemImageFileName" ColumnName="ItemImageFileName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_ItemsStatus">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_ItemsStatus">
+        <MappingFragment StoreEntitySet="fb_ItemsStatus">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="StatusId" ColumnName="StatusId" />
+          <ScalarProperty Name="ItemId" ColumnName="ItemId" />
+          <ScalarProperty Name="EventId" ColumnName="EventId" />
+          <ScalarProperty Name="TeamMemberID" ColumnName="TeamMemberID" />
+          <ScalarProperty Name="LeadID" ColumnName="LeadID" />
+          <ScalarProperty Name="TeamID" ColumnName="TeamID" />
+          <ScalarProperty Name="ProductionDate" ColumnName="ProductionDate" />
+          <ScalarProperty Name="Notes" ColumnName="Notes" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_ProductionDates">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_ProductionDates">
+        <MappingFragment StoreEntitySet="fb_ProductionDates">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="AssignItemID" ColumnName="AssignItemID" />
+          <ScalarProperty Name="ItemId" ColumnName="ItemId" />
+          <ScalarProperty Name="EventID" ColumnName="EventID" />
+          <ScalarProperty Name="ProdcutionDate" ColumnName="ProdcutionDate" />
+          <ScalarProperty Name="StatusID" ColumnName="StatusID" />
+          <ScalarProperty Name="Notes" ColumnName="Notes" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_RefreshTime">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_RefreshTime">
+        <MappingFragment StoreEntitySet="fb_RefreshTime">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="RefreshTime" ColumnName="RefreshTime" />
+          <ScalarProperty Name="NoOfNewRecords" ColumnName="NoOfNewRecords" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_Roles">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_Roles">
+        <MappingFragment StoreEntitySet="fb_Roles">
+          <ScalarProperty Name="RoleId" ColumnName="RoleId" />
+          <ScalarProperty Name="RoleName" ColumnName="RoleName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_SchedulerTemplates">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_SchedulerTemplates">
+        <MappingFragment StoreEntitySet="fb_SchedulerTemplates">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="TemplateName" ColumnName="TemplateName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_status">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_status">
+        <MappingFragment StoreEntitySet="fb_status">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="StatusName" ColumnName="StatusName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_TeamMembers">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_TeamMembers">
+        <MappingFragment StoreEntitySet="fb_TeamMembers">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="TeamId" ColumnName="TeamId" />
+          <ScalarProperty Name="TeamMemberId" ColumnName="TeamMemberId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_Teams">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_Teams">
+        <MappingFragment StoreEntitySet="fb_Teams">
+          <ScalarProperty Name="TeamId" ColumnName="TeamId" />
+          <ScalarProperty Name="TeamName" ColumnName="TeamName" />
+          <ScalarProperty Name="TeamLeadId" ColumnName="TeamLeadId" />
+          <ScalarProperty Name="TeamStartDate" ColumnName="TeamStartDate" />
+          <ScalarProperty Name="TeamEndDate" ColumnName="TeamEndDate" />
+          <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+          <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+          <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+          <ScalarProperty Name="UpdatedDate" ColumnName="UpdatedDate" />
+          <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="fb_Users">
+      <EntityTypeMapping TypeName="FlightBoardModel.fb_Users">
+        <MappingFragment StoreEntitySet="fb_Users">
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+          <ScalarProperty Name="LastName" ColumnName="LastName" />
+          <ScalarProperty Name="UserName" ColumnName="UserName" />
+          <ScalarProperty Name="SSN" ColumnName="SSN" />
+          <ScalarProperty Name="RoleId" ColumnName="RoleId" />
+          <ScalarProperty Name="Password" ColumnName="Password" />
+          <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+          <ScalarProperty Name="UpdatedDate" ColumnName="UpdatedDate" />
+          <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+          <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+          <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="vw_GetAllAssignedItemDetails">
+      <EntityTypeMapping TypeName="FlightBoardModel.vw_GetAllAssignedItemDetails">
+        <MappingFragment StoreEntitySet="vw_GetAllAssignedItemDetails">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="ItemId" ColumnName="ItemId" />
+          <ScalarProperty Name="EventId" ColumnName="EventId" />
+          <ScalarProperty Name="ProdcutionDate" ColumnName="ProdcutionDate" />
+          <ScalarProperty Name="StatusID" ColumnName="StatusID" />
+          <ScalarProperty Name="StatusName" ColumnName="StatusName" />
+          <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+          <ScalarProperty Name="LastName" ColumnName="LastName" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="MemberID" ColumnName="MemberID" />
+          <ScalarProperty Name="LeadID" ColumnName="LeadID" />
+          <ScalarProperty Name="TeamID" ColumnName="TeamID" />
+          <ScalarProperty Name="ItemName" ColumnName="ItemName" />
+          <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+          <ScalarProperty Name="EventName" ColumnName="EventName" />
+          <ScalarProperty Name="Contract" ColumnName="Contract" />
+          <ScalarProperty Name="eventQuantity" ColumnName="eventQuantity" />
+          <ScalarProperty Name="Notes" ColumnName="Notes" />
+          <ScalarProperty Name="AssignedNotes" ColumnName="AssignedNotes" />
+          <ScalarProperty Name="EventDate" ColumnName="EventDate" />
+          <ScalarProperty Name="NoofItems" ColumnName="NoofItems" />
+          <ScalarProperty Name="UnitName" ColumnName="UnitName" />
+          <ScalarProperty Name="UnitId" ColumnName="UnitId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <FunctionImportMapping FunctionImportName="ProcGetEventStatusByProductionDate" FunctionName="FlightBoardModel.Store.ProcGetEventStatusByProductionDate">
+      <ResultMapping>
+        <ComplexTypeMapping TypeName="FlightBoardModel.ProcGetEventStatusByProductionDate_Result">
+          <ScalarProperty Name="EventId" ColumnName="EventId" />
+          <ScalarProperty Name="ContractID" ColumnName="ContractID" />
+          <ScalarProperty Name="TotalItemCount" ColumnName="TotalItemCount" />
+          <ScalarProperty Name="TotalCompletedItemsCount" ColumnName="TotalCompletedItemsCount" />
+        </ComplexTypeMapping>
+      </ResultMapping>
+    </FunctionImportMapping>
+  </EntityContainerMapping>
+</Mapping>

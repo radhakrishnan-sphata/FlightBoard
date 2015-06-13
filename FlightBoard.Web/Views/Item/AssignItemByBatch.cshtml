@@ -1,0 +1,1871 @@
+﻿@model FlightBoard.Web.Models.ItemModel
+@using Lib.Web.Mvc.JQuery.JqGrid;
+@{
+    Layout = null;
+}
+
+    <div class="contentContainer">
+        <div class="headerWrapper">
+            
+            <ul class="tabedNav">
+                <li><a href="@Url.Action("Index", "Item", new { Id = Model.EventId })">Search Items</a></li>
+                <li class="active"><a href="@Url.Action("AssignItem", "Item")">Assign Items</a></li>
+            </ul>
+            @Html.HiddenFor(p => p.EventId)
+            @Html.HiddenFor(p => p.EventName)
+            @Html.HiddenFor(p => p.ItemName)
+            @Html.HiddenFor(p => p.Contract)
+            @Html.HiddenFor(p => p.ProductionFrom)
+            @Html.HiddenFor(p => p.ProductionTo)
+            @Html.HiddenFor(p => p.EventDate)
+            @Html.HiddenFor(p => p.EventEndDate)
+            @Html.HiddenFor(p => p.IsBack)
+            <button class="button  tabedNavBack" onclick="BacktoDashboard()">Back</button>  
+        </div>
+        <div class="itemSearchContaier">
+            <div class="itemSearchInnerContainer">
+                @*@using (Html.BeginForm("Save", "Team", FormMethod.Post, new { @id = "form1" }))
+                    {*@
+                @Html.ValidationSummary(true)
+                <div class="assignWrapper">
+
+                    @*<div class="assignWrapperRight fr widA">
+                            <button type="button" onclick="window.location='@Url.Action("Index", "Item", new { Id = Model.EventId })'" class="button gray"><i class="icon back"></i>Back</button>
+                            <button onclick="saveAssignItems();" class=" button green"><i class="icon correct"></i>Assign</button>
+                        </div>*@
+                    <div class="itemsLeft">
+                       
+                        <div class="itemsInner padL1P">
+                            <div class="itemsInnerDivision">
+                                <h3>Add Production Date</h3>
+                                <div class="itemsMain">
+                                    <div>
+                                        <div class="calendarInput"><input type="text" id="txtProductionDate"><span class="icon calendar"></span></div>
+                                        <input type="button" class="button green fl" value="Add Date" onclick="AddProductionDates()">
+                                    </div>
+                                    <div class="productionDate ItemScroll">
+
+                                        <ul id="productionDatesList">
+                                            @if (Model.ProductionDates != null)
+                                            {
+                                                foreach (var iDate in Model.ProductionDates)
+                                                {
+                                                    <li>@iDate<span class='remove delproductionDate'></span></li>
+                                                }
+                                            }
+                                        </ul>
+
+
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+                            <div class="itemsInnerDivision">
+                                <select id="ddlDisplay">
+                                    <option>Display By Batch</option>
+                                    <option>Display By Items</option>
+                                </select>
+                                <div class="itemsMain">
+
+                                    <div id="divItems" class="ItemScroll">
+                                        @{  int i = 1;
+                                            int k = 1;
+                                            int colorCounter = 0;
+                                            string batchname = string.Empty;
+                                            string liContract=string.Empty;
+                                            string eventIDs = string.Empty;
+                                            if (Model.ItemList.Count > 0)
+                                            {
+                                                string[] ColorArray = new string[] { "76a54c", "61747f", "bc538d", "b77834", "828062", "bc538d" };
+
+                                                foreach (var item in Model.ItemList.OrderByDescending(x => x.BatchName).ToList())
+                                                {
+                                                    int BatchSize = Model.ItemList.Where(x => x.BatchName.Equals(item.BatchName)).ToList().Count;
+
+                                                    if (item.BatchName != batchname && item.BatchName != " Not yet Batched" && BatchSize > 0)
+                                                    {
+                                                        k = 1;
+                                                        batchname = item.BatchName;
+                                                        var batchQuantity = Model.ItemList.Where(x => x.BatchName.Equals(batchname)).Select(x => x.Quantity).Sum();
+                                                        <!--<h4 style="background-color:@item.BatchColor"> @item.BatchName</h4>-->
+                                                        if (colorCounter >= ColorArray.Length - 1)
+                                                        {
+                                                            <h4 style="background-color:#@ColorArray[colorCounter - ColorArray.Length]"> @batchname (@batchQuantity)</h4>
+                                                        }
+                                                        else
+                                                        {
+                                                            <h4 style="background-color:#@ColorArray[colorCounter]"> @batchname (@batchQuantity)</h4>
+                                                        }
+                                                        colorCounter++;
+                                                        liContract = string.Empty;
+                                                        eventIDs = string.Empty;
+                                                    }
+
+                                                    if (string.IsNullOrEmpty(liContract))
+                                                    {
+                                                        liContract = item.ContractId + " - (" + item.Quantity + ")";
+                                                        eventIDs = item.EventId.ToString() + "_" + item.ContractId + "_" + item.Quantity + "_"  + item.BatchID;
+                                                    }
+                                                    else
+                                                    {
+                                                        liContract += "," + item.ContractId + " - (" + item.Quantity + ")";
+                                                        eventIDs += "," + item.EventId.ToString() + "_" + item.ContractId + "_" + item.Quantity + "_"  + item.BatchID;
+                                                    }
+
+                                                    if(item.IsPreviouslyAssigned)
+                                                    {liContract += " *";}
+
+
+                                                    if (item.BatchName != " Not yet Batched" && k == BatchSize)
+                                                    {
+                                                        <div id="Batched" class="checkbox">
+                                                            <div class="itemsAccordHead">
+                                                                @if(@item.IsEdit)
+                                                                {
+                                                                    <input type="checkbox" id="chkItems_@i" value="@item.Key" name="radio-inline" checked   />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <input type="checkbox" id="chkItems_@i" value="@item.Key" name="radio-inline"   />
+                                                                }
+                                                                
+                                                                <label for="chkItems_@i">@item.Value</label>
+                                                                @*<input type="hidden" value="@item.EventId" />*@
+                                                                <input type="hidden" value="@eventIDs" />
+                                                                <span class="accordArrow"></span>
+                                                            </div>
+                                                            <div class="itemsAccordContent">
+                                                                @*<h4>Contract #</h4>*@
+                                                                <ul>
+                                                                    @*<li>@item.ContractId</li>*@
+                                                                    @{
+                                                                        if (liContract.IndexOf(",") < 0)
+                                                                        {
+                                                                            liContract += liContract + ",";
+                                                                        }
+                                                                        string[] strIDs = liContract.Split(Convert.ToChar(","));
+                                                                        foreach (string strID in strIDs)
+                                                                        {
+                                                                            <li>@strID</li>
+                                                                        }
+                                                                    }
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+
+                                                    }
+                                                    else if (item.BatchName == " Not yet Batched")
+                                                    {
+                                                        <div id="NotBatched" class="checkbox" style="display:none">
+                                                            <div class="itemsAccordHead">
+                                                                @if (@item.IsEdit)
+                                                                    {
+                                                                         <input type="checkbox" id="chkItems_@i" value="@item.Key" eventid="@item.EventId" contractid="@item.ContractId" quantity="@item.Quantity" name="radio-inline" checked />
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <input type="checkbox" id="chkItems_@i" value="@item.Key" eventid="@item.EventId" contractid="@item.ContractId" quantity="@item.Quantity" name="radio-inline"  />
+                                                                    }
+                                                                <label for="chkItems_@i">@item.Value</label>
+                                                                <input type="hidden" value="@item.EventId"  />
+                                                                <span class="accordArrow"></span>
+                                                            </div>
+                                                            <div class="itemsAccordContent">
+                                                                @*<h4>Contract #</h4>*@
+                                                                <ul>
+                                                                    <li>@item.ContractId - (@item.Quantity)</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    i++;
+                                                    k++;
+                                                }
+                                            }
+                                        }
+
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                    
+                        
+                        <div class="itemsInner padR1P">
+                            <div class="itemsInnerDivision">
+                                <div class="itemsSub marT38 wid99P">
+                                    <div id="divSubItems" class="ItemScroll">
+
+                                        @{int j = 1, count=1;
+                                        foreach (var mainItem in Model.ItemList)
+                                        {
+                                            if (mainItem.BatchName != " Not yet Batched")
+                                            { 
+                                                
+                                                var subItemList = Model.SubItemsList.Where(x => x.MainItemId == mainItem.Key && x.EventId == mainItem.EventId).ToList();
+                                                int colorCounter1 = 0;
+                                                string batchname1 = string.Empty;
+                                                if (subItemList.Count > 0)
+                                                {
+                                                    <h4>@mainItem.Value</h4>
+                                                    string[] ColorArray1 = new string[] { "76a54c", "61747f", "bc538d", "b77834", "828062", "bc538d" };
+
+                                                    foreach (var subItem in subItemList.OrderByDescending(x => x.BatchName).ToList())
+                                                    {
+                                                        count++;
+                                                        if (subItem.BatchName != batchname1 && subItem.BatchName != " Not yet Batched") //
+                                                        {
+                                                            batchname1 = subItem.BatchName;
+                                                            <!--<h4 style="background-color:@subItem.BatchColor"> @subItem.BatchName</h4>-->
+                                                            if (colorCounter1 >= ColorArray1.Length - 1)
+                                                            {
+                                                                <h4 style="background-color:#@ColorArray1[colorCounter1 - ColorArray1.Length]"> @batchname1</h4>
+                                                            }
+                                                            else
+                                                            {
+                                                                <h4 style="background-color:#@ColorArray1[colorCounter1]"> @batchname1</h4>
+                                                            }
+                                                            colorCounter1++;
+                                                        }
+                                                        if (subItem.BatchName != " Not yet Batched")
+                                                        {
+                                                            <div class="checkbox">
+                                                                @if (@subItem.IsEdit)
+                                                                        {
+                                                                            <input type="checkbox" id="chkItems_@i" value="@subItem.SubItemId" name="radio-inline" checked />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input type="checkbox" id="chkItems_@i" value="@subItem.SubItemId" name="radio-inline" />
+                                                                        }
+                                                                <label for="chkSubItems_@j">@subItem.SubItemName
+                                                                @if (subItem.IsPreviouslyAssigned)
+                                                                {
+                                                                    <span class="icon calendar"></span>
+                                                                }
+                                                                </label>
+                                                                @{
+                                                                    var Batchid=@subItem.EventId + "_" + @subItem.BatchId;
+                                                                     <input type="hidden" value="@Batchid" />
+                                                                }
+                                                               
+                                                            </div>
+                                                        }
+                                                        j++;
+                                                    }
+
+                                                }
+                                            }
+                                        }
+                                        }
+                                        @if (count == 1)
+                                        {
+                                            <div class="text-center">No sub items</div><br />
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="itemsInnerDivision">
+                                <h3>Add Team Members</h3>
+                                <div class="itemsSub">
+                                    <div class="fl wid100P"><input type="button" onclick="AddTeamMembers();" value="Add Members" class="button green fl" /></div>
+                                    <div class="ItemScroll height128">
+                                        <ul id="lstMembers">
+                                            @if (Model.TeamMemberList != null)
+                                            {
+                                                foreach (var iMember in Model.TeamMemberList)
+                                                {
+                                                    <li tempteamid='@iMember.TeamId' temptlid='@iMember.LeadId' temptmid='@iMember.MemberId'><span class="name">@iMember.MemberName</span><span class="remove deleteteamMember"></span></li>
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="btnWrapper">
+
+                        <button onclick="SaveAssignItems();" class="button green">Schedule Items</button>
+                        <button id="btnAssignItem" onclick="UnBatchItems();" class="button green">Un-Batch</button>
+                        <button class="button green" onclick="SaveAssignSubItems();">Schedule Sub Items</button>                        
+                        <button id="btnAssignItem" onclick="UnBatchSubItems();" class="button green">Un-Batch Sub Items</button> @*onclick="CreateBatchSubItems()"
+                        @*<button onclick="return false"  class="button green">Batch</button>
+                        <button onclick="return false" class="button green">BatchSubItems</button>*@
+                        <button onclick="Clear()" class="button green">Clear</button>
+
+                    </div>
+                    <div class="assignedTasks">
+
+                        <h2>Assigned Tasks</h2>
+                    </div>
+                    <div class="assignedTasksTable grid">
+                        <table id="tblAssignItems" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tbody>
+                                <tr>
+                                    <th scope="col" width="30%">Item / Task</th>
+                                    <th scope="col" width="15%">Task Type</th>
+                                    <th scope="col" width="15%">Contract #</th>
+                                    <th scope="col" width="20%">Production Date</th>
+                                    <th scope="col" width="10%">Teams</th>
+                                    <th scope="col" width="10%">Actions</th>
+                                    @*<th scope="col">Edit</th>*@
+                                </tr>
+                                @{
+                                    if (Model.AssignedItemsList != null && Model.AssignedItemsList.Count > 0)
+                                    {
+
+                                        foreach (var assignItem in Model.AssignedItemsList)
+                                        {
+                                            <tr>
+                                                <td>@assignItem.ItemName</td>
+                                                <td>Main</td>
+                                                <td>@assignItem.ContractID</td>
+
+                                                <td>
+                                                    @if (@assignItem.ProductionFrom == "Multiple")
+                                                    {
+                                                        @*<a href='#' onclick="ShowProductionDates(@assignItem.ItemId,@assignItem.EventID);">@assignItem.ProductionFrom</a>*@
+                                                        <a href='#' class='multipleIcon icon' onclick="ShowProductionDates(@assignItem.ItemId,@assignItem.EventID);"></a>
+                                                    }
+                                                    else
+                                                    {
+                                                        @assignItem.ProductionFrom
+                                                    }
+                                                </td>
+                                                <td><a onclick="ShowTeamMembers(@assignItem.ItemId,@assignItem.EventID);" href="#"><span class="icon teamMember"></span></a></td>
+
+                                                <td>
+                                                    <span class='icon deleteDark' onclick="DeleteAssignedItemsinBatch(this);"></span>&nbsp; 
+                                                    <a href='#' class="icon editIcon" title="Edit" onclick="EditItemDetails(@assignItem.ItemId,@assignItem.EventID);"></a>
+                                                    <input type='hidden' value='@assignItem.ItemId~@assignItem.ItemId~@assignItem.EventID' />
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    }
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                    @*<div class="cb fl wid100P threecolWrapper">
+                            <div class="col3 teams">
+                                <h2>Teams</h2>
+                                <div class="searchWrapper">
+                                    <input type="text" value="Search" /><button class="btnSearch"><i></i>Search</button>
+                                </div>
+                                <div class="fieldsWrapperMain">
+                                    <div id="dvteams" class="fieldsWrapper">
+                                        @{int j = 1;
+                                        if (Model.Teamlist.Count > 0)
+                                        {
+                                            foreach (var item in Model.Teamlist)
+                                            {
+                                                var cheked = j == 1 ? "checked=checked" : "";
+                                                <div class="radio">
+                                                    <input type="radio" id="rdTeams_@j" value="@item.Key" @cheked onclick="GetTeammembers(@item.Key)" name="radioteams" />
+                                                    <label for="rdTeams_@j">@item.Value</label>
+                                                </div>
+                                                j++;
+                                            }
+                                        }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col3 assignItemcol3">
+                                <h2>Team Members</h2>
+                                <div class="teamMemberWrapper">
+                                    <div class="fieldsWrapper">
+                                        <div id="dvteamdetails"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>*@
+                </div>
+            </div>
+        </div>
+
+        @*<div id="popup" class="popUp"></div>
+    <div class="popOverlay"></div>*@
+    </div>
+
+    <script type="text/javascript">
+    $(document).ready(function () {
+        $(".ItemScroll").mCustomScrollbar({ scrollInertia: 0, theme: "dark-thick" });
+
+        $("#txtProductionDate").datepicker({ dateFormat: 'mm/dd/yy', defaultDate: new Date() });
+        //GetTeammembers($('input[name=radioteams]:checked').val());
+
+        //Set the default value of the global checkbox to true:
+        $("#checkall").prop('checked', true);
+
+        // Attach the call to toggleChecked to the
+        // click event of the global checkbox:
+        $("#checkall").click(function () {
+            var status = $("#checkall").prop('checked');
+            toggleChecked(status);
+        });
+
+        /* Items Accordion Script */
+        $('.accordArrow').click(function () {
+            $(this).toggleClass('active');
+            $(this).parent().siblings('.itemsAccordContent').toggle();
+        });
+        /* Items Accordion Script */
+
+    });
+
+
+    function toggleChecked(status) {
+        $("#MainItemcheckboxes input").each(function () {
+
+            // Set the checked status of each to match the
+            // checked status of the check all checkbox:
+            $(this).prop("checked", status);
+        });
+    }
+
+    function DeleteAssignedItemsinBatch(obj) {
+
+        var deleteFlag = confirm('Are you sure you want to delete this Assigned Item record?');
+
+        if (deleteFlag) {
+            var id = $(obj).next().next().val();
+            
+            var IteamInfo = new Object();
+            var ItemList1 = [];
+            var SubItemsList1 = [];
+
+            $('#divItems div input[type=checkbox]').each(function () {
+                //alert($(this).is(":checked"));
+                var temp = new Array();
+                temp = $(this).parent().find(":hidden").attr('value').split(",");
+                for (a in temp) {
+                    var tempInner = new Array();
+                    tempInner = temp[a].split("_");
+                    var o = new Object();
+                    var k = $(this).attr('value');
+                    o['Key'] = k;
+                    o['Value'] = $(this).parent().text();
+                    //o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                    //o['EventId'] = temp[a];
+                    o['EventId'] = tempInner[0];
+                    o['ContractId'] = tempInner[1];
+                    o['Quantity'] = tempInner[2];
+
+                    ItemList1.push(o);
+                }
+            });
+
+            $('#divSubItems div input[type=checkbox]').each(function () {
+                //alert($(this).is(":checked"));
+
+                var o = new Object();
+                var k = $(this).attr('value');
+                o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                o['SubItemId'] = k;
+                o['SubItemName'] = $(this).parent().text();
+                o['MainItemId'] = 0;
+                o['MainItemName'] = '';
+                SubItemsList1.push(o);
+
+            });
+
+            if (ItemList1.length > 0) {
+                //alert('came');
+                IteamInfo.ItemList = ItemList1;
+                IteamInfo.SubItemsList = SubItemsList1;
+                $.blockUI();
+                $.ajax({
+                    url: "@Url.Action("DeleteAssignItem", "Item")",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        itemModel: IteamInfo,
+                        Ids: id
+                    }),
+                    type: 'Post',
+                    success: function (data) {
+                        if (data.result == "Success") {
+                            ItemList1 = [];
+                            SubItemsList1 = [];
+
+                            $('#divItems div input[type=checkbox]').each(function () {
+                                //alert($(this).is(":checked"));
+                                var temp = new Array();
+                                temp = $(this).parent().find(":hidden").attr('value').split(",");
+                                for (a in temp) {
+                                    var tempInner = new Array();
+                                    tempInner = temp[a].split("_");
+                                    var o = new Object();
+                                    var k = $(this).attr('value');
+                                    o['Key'] = k;
+                                    o['Value'] = $(this).parent().text();
+                                    //o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                                    //o['EventId'] = temp[a];
+                                    o['EventId'] = tempInner[0];
+                                    o['ContractId'] = tempInner[1];
+                                    o['Quantity'] = tempInner[2];
+
+                                    ItemList1.push(o);
+                                }
+                            });
+
+                            $('#divSubItems div input[type=checkbox]').each(function () {
+                                //alert($(this).is(":checked"));
+
+                                var o = new Object();
+                                var k = $(this).attr('value');
+                                o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                                o['SubItemId'] = k;
+                                o['SubItemName'] = $(this).parent().text();
+                                o['MainItemId'] = 0;
+                                o['MainItemName'] = '';
+                                SubItemsList1.push(o);
+
+                            });
+                            IteamInfo.EventId = $("#EventId").val();
+                            IteamInfo.ItemName = $("#ItemName").val();
+                            IteamInfo.EventName = $("#EventName").val();
+                            IteamInfo.Contract = $("#Contract").val();
+                            IteamInfo.ProductionFrom = $('#ProductionFrom').val().replace('-', '/');
+                            IteamInfo.ProductionTo = $('#ProductionTo').val().replace('-', '/');
+                            IteamInfo.EventDate = $('#EventDate').val().replace('-', '/');
+                            IteamInfo.EventEndDate = $('#EventEndDate').val().replace('-', '/');
+                            IteamInfo.ItemList = ItemList1;
+                            IteamInfo.SubItemsList = SubItemsList1;
+
+                            $.ajax({
+                                url: "@Url.Action("AssignItemByBatch", "Item")",
+                                contentType: "application/json",
+                                data: JSON.stringify({
+                                    itemModel: IteamInfo
+                                }),
+                                type: 'Post',
+                                success: function (data) {
+                                    $.unblockUI();
+                                    $("#mainContainer").html(data);
+                                    //$(".assignedTasksTable").mCustomScrollbar({ scrollInertia: 0, theme: "dark-thick" });
+                                },
+                                error: function (e, textStatus, jqXHR) {
+                                    $.unblockUI();
+                                }
+                            });//end of inner ajax
+
+                            //$.unblockUI();
+
+                        }
+                        else {
+                            //alert(data.result);
+                            $.unblockUI();
+                        }
+                    },
+                    error: function (e, textStatus, jqXHR) {
+                        $.unblockUI();
+                    }
+                });//end of Ajax
+            }
+        }
+        else {
+            //alert(deleteFlag);
+            return false;
+        }
+    }
+
+
+    @*//Delete AssignItems
+    $(document).on('click', '.deleteDark', function () {
+        var id = $(this).next().val();
+
+        var IteamInfo = new Object();
+        var ItemList1 = [];
+        var SubItemsList1 = [];
+
+        $('#divItems div input[type=checkbox]').each(function () {
+            //alert($(this).is(":checked"));
+                var temp = new Array();
+                temp = $(this).parent().find(":hidden").attr('value').split(",");
+                for (a in temp) {
+                    var tempInner = new Array();
+                    tempInner = temp[a].split("_");
+                    var o = new Object();
+                    var k = $(this).attr('value');
+                    o['Key'] = k;
+                    o['Value'] = $(this).parent().text();
+                    //o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                    //o['EventId'] = temp[a];
+                    o['EventId'] = tempInner[0];
+                    o['ContractId'] = tempInner[1];
+                    o['Quantity'] = tempInner[2];
+
+                    ItemList1.push(o);
+                }
+        });
+
+        $('#divSubItems div input[type=checkbox]').each(function () {
+            //alert($(this).is(":checked"));
+           
+                var o = new Object();
+                var k = $(this).attr('value');
+                o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                o['SubItemId'] = k;
+                o['SubItemName'] = $(this).parent().text();
+                o['MainItemId'] = 0;
+                o['MainItemName'] = '';
+                SubItemsList1.push(o);
+            
+        });
+
+        if (ItemList1.length > 0) {
+            IteamInfo.ItemList = ItemList1;
+            IteamInfo.SubItemsList = SubItemsList1;
+            $.blockUI();
+            $.ajax({
+                url: "@Url.Action("DeleteAssignItem", "Item")",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    itemModel: IteamInfo,
+                    Ids: id
+                }),
+                type: 'Post',
+                success: function (data) {
+                    if (data.result == "Success") {
+                        var assignItems = data.AssignItemsList;
+                        //alert(assignItems);
+                        var htmlrow = '';
+                        var checked = '';
+                        var i = 0;
+                        $.each(assignItems, function (index, value) {
+                            if (i == 0) {
+                                htmlrow = "<tr><td>" + value.ItemName + "</td><td>Main</td><td>" + value.Contract + "</td>";
+                                if (value.ProductionDate == "Multiple") {
+                                    htmlrow = htmlrow + "<td><a href = '#' onclick = 'ShowProductionDates(" + value.ItemId + "," + value.EventId + ")'>" + value.ProductionDate + "</a></td>";
+                                }
+                                else {
+                                    htmlrow = htmlrow + "<td>" + value.ProductionDate + "</td>";
+                                }
+                                //htmlrow = htmlrow + "<td>" + value.TeamMembers + "</td><td><span class='icon deleteDark'></span><input type='hidden' value='" + value.Id + "~" + value.ItemId + "~" + value.EventId + "' /></td></tr>";
+                                htmlrow = htmlrow + "<td><a href = '#' onclick = 'ShowTeamMembers(" + value.ItemId + "," + value.EventId + ");'><span class='icon teamMember'></span></a></td><td><span class='icon deleteDark'></span><input type='hidden' value='" + value.Id + "~" + value.ItemId + "~" + value.EventId + "' /></td></tr>";
+                            }
+                            else {
+                                htmlrow = htmlrow + "<tr><td>" + value.ItemName + "</td><td>Main</td><td>" + value.Contract + "</td>";
+                                if (value.ProductionDate == "Multiple") {
+                                    htmlrow = htmlrow + "<td><a href = '#' onclick = 'ShowProductionDates(" + value.ItemId + "," + value.EventId + ")'>" + value.ProductionDate + "</a></td>";
+                                }
+                                else {
+                                    htmlrow = htmlrow + "<td>" + value.ProductionDate + "</td>";
+                                }
+                                //htmlrow = htmlrow + "<td>" + value.TeamMembers + "</td><td><span class='icon deleteDark' ></span><input type='hidden' value='" + value.Id + "~" + value.ItemId + "~" + value.EventId + "' /></td></tr>";
+                                htmlrow = htmlrow + "<td><a href = '#' onclick = 'ShowTeamMembers(" + value.ItemId + "," + value.EventId + ");'><span class='icon teamMember'></span></a></td><td><span class='icon deleteDark' ></span><input type='hidden' value='" + value.Id + "~" + value.ItemId + "~" + value.EventId + "' /></td></tr>";
+                            }
+
+                            i++;
+                        });
+                        //alert(htmlrow);
+                        $('#tblAssignItems tr:gt(0)').remove()
+                        $("#tblAssignItems tr:first").after(htmlrow);
+                        $.unblockUI();
+                    }
+                    else {
+                        alert(data.result);
+                    }
+                },
+                error: function (e, textStatus, jqXHR) {
+                }
+            });//end of Ajax
+        }
+        // code here
+    });// end of delete click event*@
+
+    function GetChildItems(obj) {
+        var itemlist1 = new Array();
+        var EventId = 0;
+        EventId1 = @Model.EventId
+        $(".locationthemes:checked").each(function () {
+            var tempitemId = $(this).val();
+            itemlist1.push(tempitemId);
+        });
+        if (itemlist1.length > 0) {
+            $.ajax({
+                url: "@Url.Action("GetSubItems", "Item")",
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify({
+                    EventId: EventId1,
+                    itemList: itemlist1,
+                }),
+                type: 'POST',
+                success: function (data) {
+                    if (data.status == "success") {
+                        var subItems = data.SubItems;
+                        var htmlrow = '';
+                        var checked = '';
+                        var i = 0;
+                        $.each(subItems, function (index, value) {
+                            if (i == 0) {
+                                checked = 'checked = checked';
+                            }
+                            if (i == 0) {
+                                htmlrow = "<tr><td> <input type='checkbox' id='chkSub_" + value.ItemId + "' value='" + value.ItemId + "' name='chk-inline'" + checked + " /> <label for= chkSubItems_" + i + ">" + value.ItemName + "</label></td></tr>";
+                            }
+                            else {
+                                htmlrow = htmlrow + "<tr><td> <input type='checkbox' id='chkSub_" + value.ItemId + "' value='" + value.ItemId + "' name='chk-inline' checked /> <label for= chkSubItems_" + i + ">" + value.ItemName + "</label></td></tr>";
+                            }
+
+                            i++;
+                        });
+                        //alert(htmlrow);
+                        $("#tblSubItem").html(htmlrow);
+                    }
+                    else {
+                        alert(data.message);
+                    }
+                },
+                error: function (e, textStatus, jqXHR) {
+                }
+            });
+        }
+
+    }
+
+    function SaveAssignItems() {
+        var IteamInfo = new Object();
+        var ItemList1 = [];
+        var SubItemsList1 = [];
+        var productionList = [];
+        var MemberList1 = [];
+
+        $('#divItems div input[type=checkbox]').each(function () {
+            //alert($(this).is(":checked"));
+            if ($(this).parent().parent().attr("id") == "Batched") {
+                if ($(this).is(":checked")) {
+
+                    var temp = new Array();
+                    temp = $(this).parent().find(":hidden").attr('value').split(",");
+                    for (a in temp) {
+                        var tempInner = new Array();
+                        tempInner = temp[a].split("_");
+                        var o = new Object();
+                        var k = $(this).attr('value');
+                        o['Key'] = k;
+                        o['Value'] = $(this).parent().text();
+                        //o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                        //temp[a] = parseInt(temp[a], 10); // Explicitly include base as per Álvaro's comment                    
+                        //o['EventId'] = temp[a];
+                        o['EventId'] = tempInner[0];
+                        o['ContractId'] = tempInner[1];
+                        o['Quantity'] = tempInner[2];
+                        ItemList1.push(o);
+                    }
+
+                }
+            }
+        });
+
+        
+
+
+        $("#productionDatesList").find("li").each(function () {
+            productionList.push($(this).text()); 
+        });
+
+        if (productionList.length == 0) {
+            alert('Please select a Production date');
+            return false;
+        }
+
+        $("#lstMembers").find('li').each(function () {
+            //alert($(this).prop("tagName"));
+            //alert("TeamId = " + $(this).attr("tempteamId"));
+            //alert("LeadId = " + $(this).attr("tempTLId"));
+            //alert("MemberId = " + $(this).attr("tempTMId"));
+            var o = new Object();
+            o['TeamId'] = $(this).attr("tempteamId");
+            o['LeadId'] = $(this).attr("tempTLId");
+            o['MemberId'] = $(this).attr("tempTMId");
+            MemberList1.push(o);
+        });
+
+        if (ItemList1.length > 0) {
+            IteamInfo.ItemList = ItemList1;
+            IteamInfo.SubItemsList = SubItemsList1;
+            IteamInfo.ProductionDates = productionList;
+            IteamInfo.TeamMemberList = MemberList1;
+            $.blockUI();
+            $.ajax({
+                url: "@Url.Action("SaveItems", "Item")",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    itemModel: IteamInfo
+                }),
+                type: 'Post',
+                success: function (data) {
+                    //alert(data.result);
+                    if (data.result == "Success") {
+                        
+
+                        //$('#divItems div input[type=checkbox]').each(function () {
+                        //    //alert($(this).is(":checked"));
+                        //    var o = new Object();
+                        //    var k = $(this).attr('value');
+                        //    o['Key'] = k;
+                        //    o['Value'] = $(this).parent().text();
+                        //    o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                        //    ItemList1.push(o);
+                                
+                        //});
+
+                        //$('#divSubItems div input[type=checkbox]').each(function () {
+                        //    //alert($(this).is(":checked"));
+                        //    var o = new Object();
+                        //    var k = $(this).attr('value');
+                        //    o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                        //    o['SubItemId'] = k;
+                        //    o['SubItemName'] = $(this).parent().text();
+                        //    o['MainItemId'] = 0;
+                        //    o['MainItemName'] = '';
+                        //    SubItemsList1.push(o);
+                        //});
+
+
+                        //IteamInfo.ItemList = ItemList1;
+                        //IteamInfo.SubItemsList = SubItemsList1;
+                        IteamInfo.EventId = $("#EventId").val();
+                        IteamInfo.ItemName = $("#ItemName").val();
+                        IteamInfo.EventName = $("#EventName").val();
+                        IteamInfo.ProductionFrom = $('#ProductionFrom').val().replace('-', '/');
+                        IteamInfo.ProductionTo = $('#ProductionTo').val().replace('-', '/');
+                        IteamInfo.EventDate = $('#EventDate').val().replace('-', '/');
+                        IteamInfo.EventEndDate = $('#EventEndDate').val().replace('-', '/');
+
+                        $.ajax({
+                            url: "@Url.Action("AssignItem", "Item")",
+                            contentType: "application/json",
+                        data: JSON.stringify({
+                            itemModel: IteamInfo
+                        }),
+                        type: 'Post',
+                        success: function (data) {
+                            $("#mainContainer").html(data);
+                            //$(".assignedTasksTable").mCustomScrollbar({ scrollInertia: 0, theme: "dark-thick" });
+                        },
+                        error: function (e, textStatus, jqXHR) {
+                            $.unblockUI();
+                        }
+                    });//end of inner ajax
+
+                    $.unblockUI();
+                    }
+                    else {
+                        alert(data.result);
+                        $.unblockUI();
+                    }
+                },
+                error: function (e, textStatus, jqXHR) {
+                    alert(e);
+                    $.unblockUI();
+                }
+            });
+        }
+        else {
+            alert('Please select item to assign');
+        }
+    }
+
+    function ShowProductionDates(itemId, eventId) {
+        if (itemId > 0 && eventId > 0) {
+            $.ajax({
+                url: "@Url.Action("ShowProductionDates", "Item")",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    itemId: itemId,
+                    eventId:eventId
+                }),
+                type: 'Post',
+                success: function (data) {
+                    $("#popup").html('');
+                    $("#popup").empty();
+                    $("#popup").addClass('multipleProductionDate');
+
+                    $("#popup").empty();
+                    $("#popup").html(data);
+                    $('.popUp, .popOverlay').css('display', 'block');
+                },
+                error: function (e, textStatus, jqXHR) {
+                }
+            });//end of Ajax
+        }
+    }
+
+    function ShowTeamMembers(Itemid, EventId) {
+        if (Itemid > 0 && Itemid > 0) {
+            $.ajax({
+                cache: false,
+                url: '@Url.Content("~/Item/GetTeammberonItems")',
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                type: "POST",
+                data: JSON.stringify({ ItemId: Itemid, EventId: EventId }),
+                success: function (data) {
+                    $("#popup").html('');
+                    $("#popup").empty();
+                    $("#popup").removeClass('multipleProductionDate');
+
+                    $("#popup").empty();
+                    var tb = "<div class='popInner addBatch recipeDetailsPop'><h1>Team Member Details</h1>";
+                    tb = tb + "<div id='boxscroll4' class='recipePreDetails' style='overflow: hidden;' tabindex='5000'><table width='100%'  border='0'><tr><th style='text-align:center'>S.No</th><th>Team Name</th><th>Team Lead Name</th><th>Team Member Name</th></tr>";
+                    var i = 1;
+                    $.each(data, function (index, value) {
+                        var row = "<tr><td align='center'>" + i + "</td><td>" + value.TeamName + "</td><td>" + value.TeamLeadName + "</td><td>" + value.TeamMemberName + "</td></tr>";
+                        tb = tb + row;
+                        i++;
+                    });
+                    tb = tb + "</table></div><div class='popclose'><a href='javascript:void(0)'></a></div></div>";
+                    $("#popup").html(tb);
+                    $('.popUp, .popOverlay').css('display', 'block');
+                },
+                error: function () {
+                    alert("Internal error - Unable to show Team memebers.");
+                }
+            });
+        }
+    }
+
+    function GetTeammembers(teamId) {
+        $.ajax({
+            url: "@Url.Action("GetTeammembersdetails", "Item")",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({ TeamId: teamId }),
+            type: 'POST',
+            success: function (data) {
+                $("#dvteamdetails").html('');
+                var tlname = [];
+                var divsubmaintag = "<div id='dvTM' class='radioThreeGroup'>";
+                var i = 1;
+                var divtl = '';
+                var checked = '';
+                $.each(data, function (index, value) {
+                    if (tlname.indexOf(value.TeamLeadId) < 0) {
+                        divtl = "<div id='dvTL' class='wid100P fl radioMain'><div class='radio'><input checked='checked' type='radio' id='rdTL_" + i + "' value='" +
+                            value.TeamLeadId + "' name='radioTL' /><label for='rdTL_" + i + "'>" + value.TeamLeadName + "</label></div></div>";
+                    }
+                    if (i == 1)
+                        checked = "checked = checked";
+                    else
+                        checked = '';
+                    var divsubtm = "<div  class='radio'><input type='radio' id='rdTM_" + i + "'" + checked + " value='" + value.TeamMemberId + "' name='radioTM' /><label for='rdTM_" +
+                        i + "'>" + value.TeamMemberName + "</label></div>"
+                    divsubmaintag = divsubmaintag + divsubtm;
+                    i++;
+                    tlname.push(value.TeamLeadId);
+                });
+                divsubmaintag += "</div>";
+                $("#dvteamdetails").append(divtl);
+                $("#dvteamdetails").append(divsubmaintag);
+            },
+            error: function (e, textStatus, jqXHR) {
+                alert(textStatus);
+            }
+        });
+
+    }
+
+    function CreateBatch() {
+        var IteamInfo = new Object();
+        var ItemList1 = [];
+
+
+        $('#divItems div input[type=checkbox]').each(function () {
+            //alert($(this).is(":checked"));
+            if ($(this).is(":checked")) {
+                //alert($(this).attr('value'));
+                var o = new Object();
+                var k = $(this).attr('value');
+                //var s = k.split('_');
+                o['Key'] = k; //s[s.length - 1];
+                //alert($(this).parent().text());
+                o['Value'] = $(this).parent().text();
+                //alert($(this).parent().prop('tagName'));
+                //alert($(this).parent().find(":hidden").attr('value'));
+                //alert($(this).parent().next().next().next().next().text());
+                o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                o['IsChecked'] = true;
+                ItemList1.push(o);
+            }
+            else {
+                var o = new Object();
+                var k = $(this).attr('value');
+                o['Key'] = k;
+                o['Value'] = $(this).parent().text();
+                o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                o['IsChecked'] = false;
+                ItemList1.push(o);
+            }
+        });
+
+        //alert(ItemList1.length);
+        if (ItemList1.length > 0) {
+            IteamInfo.ItemList = ItemList1;
+            $.ajax({
+                url: "@Url.Action("CreateBatch", "Item")",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    itemModel: IteamInfo
+                }),
+                type: 'Post',
+                success: function (data) {
+                    $("#popup").html('');
+                    $("#popup").empty();
+                    $("#popup").removeClass('multipleProductionDate');
+                    $("#popup").html(data);
+                    $('.popUp, .popOverlay').css('display', 'block');
+                },
+                error: function (e, textStatus, jqXHR) {
+                }
+            });//end of Ajax
+
+        }//End Of ItemList1
+        else { alert("Please select atleast one item."); }
+    }
+
+    $("#ddlDisplay").change(function () {
+        //alert("Handler for .change() called.");
+        var selectedValue = $("#ddlDisplay").val();
+        //alert(selectedValue);
+        if (selectedValue.indexOf('Items') > 0) {
+            var IteamInfo = new Object();
+            var ItemList1 = [];
+            IteamInfo.EventId = $("#EventId").val();
+            IteamInfo.ItemName = $("#ItemName").val();
+            IteamInfo.EventName = $("#EventName").val();
+            IteamInfo.ProductionFrom = $('#ProductionFrom').val().replace('-', '/');
+            IteamInfo.ProductionTo = $('#ProductionTo').val().replace('-', '/');
+            IteamInfo.EventDate = $('#EventDate').val().replace('-', '/');
+            IteamInfo.EventEndDate = $('#EventEndDate').val().replace('-', '/');
+
+            $('#divItems div input[type=checkbox]').each(function () {
+               
+                //alert($(this).is(":checked"));
+                
+                if ($(this).parent().parent().attr("id") == "Batched") {
+                    if ($(this).is(":checked")) {
+                        var temp = new Array();
+                        temp = $(this).parent().find(":hidden").attr('value').split(",");
+                        for (a in temp) {
+                            var tempInner = new Array();
+                            tempInner = temp[a].split("_");
+                            //alert($(this).attr('value'));
+                            var o = new Object();
+                            var k = $(this).attr('value');
+                            //var s = k.split('_');
+                            o['Key'] = k; //s[s.length - 1];
+                            //alert($(this).parent().text());
+                            o['Value'] = $(this).parent().text();
+                            //o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                            //o['EventId'] = temp[a];
+                            o['EventId'] = tempInner[0];
+                            o['ContractId'] = tempInner[1];
+                            o['Quantity'] = tempInner[2];
+                            o['IsChecked'] = true;
+                            ItemList1.push(o);
+                        }
+                    }
+                    else {
+                        var temp = new Array();
+                        //alert('came else');
+                        temp = $(this).parent().find(":hidden").attr('value').split(",");
+                        for (a in temp) {
+                            var tempInner = new Array();
+                            tempInner = temp[a].split("_");
+                            //alert($(this).attr('value'));
+                            var o = new Object();
+                            var k = $(this).attr('value');
+                            //var s = k.split('_');
+                            o['Key'] = k; //s[s.length - 1];
+                            //alert($(this).parent().text());
+                            o['Value'] = $(this).parent().text();
+                            //o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                            //o['EventId'] = temp[a];
+                            o['EventId'] = tempInner[0];
+                            o['ContractId'] = tempInner[1];
+                            o['Quantity'] = tempInner[2];
+                            o['IsChecked'] = false;
+                            ItemList1.push(o);
+                        }
+                    }
+                }
+                else if ($(this).parent().parent().attr("id") == "NotBatched") {
+                    var o = new Object();
+                    var k = $(this).attr('value');
+                    o['Key'] = k;
+                    o['Value'] = $(this).parent().text();
+                    o['EventId'] = $(this).attr('eventid'); //$(this).parent().find(":hidden").attr('value');
+                    o['ContractId'] = $(this).attr('contractid');
+                    o['Quantity'] = $(this).attr('quantity');
+                    //alert(o['ContractId']);
+                    o['IsChecked'] = false;
+                    ItemList1.push(o);
+                }
+            });
+
+            IteamInfo.ItemList = ItemList1;
+
+            $.blockUI();
+
+            $.ajax({
+                url: "@Url.Action("AssignItem", "Item")",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    itemModel: IteamInfo
+                }),
+                type: 'Post',
+                success: function (data) {
+                    //alert(data);
+                    //$(".contentContainer").html(data);
+                    //alert($(".contentContainer").parent().attr('id'));
+                    callbackfunctionforItems(data);
+                    $.unblockUI();
+                },
+                error: function (e, textStatus, jqXHR) {
+                    $.unblockUI();
+                }
+            });//end of Ajax
+        }
+    });
+
+    //Add the ProductionDates
+        function AddProductionDates() {
+            var txtValue = $("#txtProductionDate").val();
+            var html = "";
+            var isDup = false;
+            if (txtValue != '') {
+                //alert($("#productionDatesList").find("li").length);
+                $("#productionDatesList").find("li").each(function () {
+                    if (txtValue == $(this).text()) {
+                        isDup = true;
+                        //alert('Selected date is already in the below list');
+                        //return false;
+                    }
+                });
+                if (isDup) {
+                    alert('Selected date is already in the below list');
+                }
+                else {
+                    html = "<li>" + txtValue + "<span class='remove delproductionDate'></span></li>"
+                    $("#productionDatesList").append(html);
+                }
+                $("#txtProductionDate").val('');
+            }
+            else {
+                alert('Please select Production Date');
+                return false;
+            }
+            //$(".ItemScroll").mCustomScrollbar({ scrollInertia: 0, theme: "dark-thick" });
+
+        }
+
+    $(document).on('click', '.delproductionDate', function () {
+        $(this).parent().remove();
+    });
+
+    function AddTeamMembers()
+        {
+            //lstMembers
+            //$("#lstMembers").find('li').each(function () {
+            //    //alert($(this).prop("tagName"));
+            //    alert("TeamId = " + $(this).attr("tempteamId"));
+            //    alert("LeadId = " + $(this).attr("tempTLId"));
+            //    alert("MemberId = " + $(this).attr("tempTMId"));
+            //});
+            $.ajax({
+                url: "@Url.Action("AddTeamMembers", "Item")",
+                contentType: "application/json",
+            data: JSON.stringify({
+            }),
+            type: 'Post',
+            success: function (data) {
+                $("#popup").html('');
+                $("#popup").empty();
+                $("#popup").removeClass('multipleProductionDate');
+                $("#popup").html(data);
+                $('.popUp, .popOverlay').css('display', 'block');
+            },
+            error: function (e, textStatus, jqXHR) {
+            }
+        });//end of Ajax
+        }
+
+    function PassSelectedMembers(MembersList) {
+        //alert(tempteamId +' - '+ tempTLId +' - '+ tempTMId);
+        //alert(MembersList);
+
+        MembersList.forEach(function (item) {
+            var AddFlag = false;
+            //alert(item['tempTMName']);
+            $("#lstMembers").find('li').each(function () {
+                //alert($(this).prop("tagName"));
+                if ($(this).attr("tempteamId") == item['tempteamId'] && $(this).attr("tempTLId") == item['tempTLId'] && $(this).attr("tempTMId") == item['tempTMId'])
+                    AddFlag = true;
+            });
+            if (!AddFlag)
+                $("#lstMembers").append('<li tempteamId=' + item['tempteamId'] + ' tempTLId=' + item['tempTLId'] + ' tempTMId=' + item['tempTMId'] + '>' + item['tempTMName'] + '<span class="remove deleteteamMember"></span></li>');
+        });
+        //$(".ItemScroll").mCustomScrollbar({ scrollInertia: 0, theme: "dark-thick" });
+    }
+
+    function PassSelectedMembers_old(tempteamId, tempTLId, tempTMId, tempTMName) {
+        //alert(tempteamId +' - '+ tempTLId +' - '+ tempTMId);
+        var AddFlag = false;
+        $("#lstMembers").find('li').each(function () {
+            //alert($(this).prop("tagName"));
+            if ($(this).attr("tempteamId") == tempteamId && $(this).attr("tempTLId") == tempTLId && $(this).attr("tempTMId") == tempTMId)
+                AddFlag = true;
+        });
+
+        if (!AddFlag)
+            $("#lstMembers").append('<li tempteamId=' + tempteamId + ' tempTLId=' + tempTLId + ' tempTMId=' + tempTMId + '>' + tempTMName + '<span class="remove deleteteamMember"></span></li>');
+        else
+            alert('This Team member is already selected.')
+    }
+
+    $(document).on('click', '.deleteteamMember', function () {
+        $(this).parent().remove();
+    });
+
+
+
+    function CreateBatchSubItems() {
+             
+        var IteamInfo = new Object();
+        var ItemList1 = [];
+        
+        var IteamInfoPass = new Object();
+        var ItemListPass = [];
+
+
+        $('#divItems div input[type=checkbox]').each(function () {
+            //alert($(this).is(":checked"));
+            //alert($(this).parent().parent().attr("id"));
+            if ($(this).parent().parent().attr("id") == "Batched") {
+                if ($(this).is(":checked")) {
+                    var temp = new Array();
+                    temp = $(this).parent().find(":hidden").attr('value').split(",");
+                    for (a in temp) {
+                        var tempInner = new Array();
+                        tempInner = temp[a].split("_");
+                        //alert($(this).attr('value'));
+                        var o = new Object();
+                        var k = $(this).attr('value');
+                        //var s = k.split('_');
+                        o['Key'] = k; //s[s.length - 1];
+                        //alert($(this).parent().text());
+                        o['Value'] = $(this).parent().text();
+                        //o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                        //o['EventId'] = temp[a];
+                        o['EventId'] = tempInner[0];
+                        o['ContractId'] = tempInner[1];
+                        o['Quantity'] = tempInner[2];
+                        o['IsChecked'] = true;
+                        ItemListPass.push(o);
+                    }
+                }
+                else {
+                    var temp = new Array();
+                    temp = $(this).parent().find(":hidden").attr('value').split(",");
+                    for (a in temp) {
+                        var tempInner = new Array();
+                        tempInner = temp[a].split("_");
+                        //alert($(this).attr('value'));
+                        var o = new Object();
+                        var k = $(this).attr('value');
+                        //var s = k.split('_');
+                        o['Key'] = k; //s[s.length - 1];
+                        //alert($(this).parent().text());
+                        o['Value'] = $(this).parent().text();
+                        //o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                        //o['EventId'] = temp[a];
+                        o['EventId'] = tempInner[0];
+                        o['ContractId'] = tempInner[1];
+                        o['Quantity'] = tempInner[2];
+                        o['IsChecked'] = false;
+                        ItemListPass.push(o);
+                    }
+                }
+            }
+            else if ($(this).parent().parent().attr("id") == "NotBatched") {
+                var o = new Object();
+                var k = $(this).attr('value');
+                o['Key'] = k;
+                o['Value'] = $(this).parent().text();
+                o['EventId'] = $(this).attr('eventid'); //$(this).parent().find(":hidden").attr('value');
+                o['ContractId'] = $(this).attr('contractid');
+                o['Quantity'] = $(this).attr('quantity');
+                //alert(o['ContractId']);
+                o['IsChecked'] = false;
+                ItemListPass.push(o);
+            }
+        });
+
+        $('#divSubItems div input[type=checkbox]').each(function () {
+            //alert($(this).is(":checked"));
+            if ($(this).is(":checked")) {
+                var o = new Object();
+                var k = $(this).attr('value');
+                o['Key'] = k; //s[s.length - 1];
+                o['Value'] = $(this).parent().text();
+                o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                ItemList1.push(o);
+            }
+        });
+
+        var OldItemID = 0;
+        var CurrentItemID = 0;
+        var Proceed = true;
+        var BatchName = '';
+        ItemList1.forEach(function (item) {
+            //alert(item['Key']);
+            CurrentItemID = item['Key'];
+            BatchName = item['Value'] + ' B';
+            if (OldItemID != 0 && OldItemID != CurrentItemID) 
+                Proceed = false;              
+            else
+                OldItemID = CurrentItemID;
+        });
+        
+        if (!Proceed)
+            alert('You have selected Unlike items to create a batch!');
+
+        //alert(ItemList1.length);
+        if (ItemList1.length > 1 && Proceed) {
+            IteamInfo.ItemList = ItemList1;
+            IteamInfoPass.ItemList = ItemListPass;
+            $.ajax({
+                url: "@Url.Action("AddBatch", "Item")",
+                contentType: "application/json",
+            data: JSON.stringify({
+                itemModel: IteamInfo,
+                BatchName: BatchName,
+                isSubitem: true
+            }),
+            type: 'Post',
+            success: function (data) {
+                
+                if(data.status)
+                {
+                    //alert(data.status);
+                    callbackfunction(data.status, IteamInfoPass);
+                }
+            },
+            error: function (e, textStatus, jqXHR) {
+            }
+        });//end of Ajax
+
+    }//End Of ItemList1
+    else if (ItemList1.length <= 1) { alert("Please select atleast two sub-items create as a batch."); }
+    }
+
+
+
+        function SaveAssignSubItems() {
+            var IteamInfo = new Object();
+            var ItemList1 = [];
+            var SubItemsList1 = [];
+            var productionList = [];
+            var MemberList1 = [];
+           
+
+            $('#divSubItems div input[type=checkbox]').each(function () {
+                if ($(this).is(":checked")) {
+                    var o = new Object();
+                    var k = $(this).attr('value');
+                    var temp = $(this).parent().find(":hidden").attr('value').split('_');
+                    o['EventId'] = temp[0];
+                    o['SubItemId'] = k;
+                    o['SubItemName'] = $(this).parent().text();
+                    o['MainItemId'] = 0;
+                    o['MainItemName'] = '';
+                    SubItemsList1.push(o);
+                }
+            });
+
+            $("#lstMembers").find('li').each(function () {
+                //alert($(this).prop("tagName"));
+                //alert("TeamId = " + $(this).attr("tempteamId"));
+                //alert("LeadId = " + $(this).attr("tempTLId"));
+                //alert("MemberId = " + $(this).attr("tempTMId"));
+                var o = new Object();
+                o['TeamId'] = $(this).attr("tempteamId");
+                o['LeadId'] = $(this).attr("tempTLId");
+                o['MemberId'] = $(this).attr("tempTMId");
+                MemberList1.push(o);
+            });
+
+
+           
+            $("#productionDatesList").find("li").each(function () {
+                productionList.push($(this).text());
+            })
+
+            if (productionList.length == 0) {
+                alert('Please select a Production date');
+                return false;
+            }
+            if (SubItemsList1.length == 0) {
+                alert('Please select sub item to assign');
+            }
+            else {
+                alert('Please select sub item to assign');
+
+            }
+            if (SubItemsList1.length > 0) {
+                IteamInfo.SubItemsList = SubItemsList1;
+                IteamInfo.ProductionDates = productionList;
+                IteamInfo.TeamMemberList = MemberList1;
+                $.blockUI();
+                $.ajax({
+                    url: "@Url.Action("SaveItems", "Item")",
+                    contentType: "application/json",
+                data: JSON.stringify({
+                    itemModel: IteamInfo
+                }),
+                type: 'Post',
+                success: function (data) {
+                    if (data.result == "Success") {
+
+                        IteamInfo.EventId = $("#EventId").val();
+                        IteamInfo.ItemName = $("#ItemName").val();
+                        IteamInfo.EventName = $("#EventName").val();
+                        IteamInfo.ProductionFrom = $('#ProductionFrom').val().replace('-', '/');
+                        IteamInfo.ProductionTo = $('#ProductionTo').val().replace('-', '/');
+                        IteamInfo.EventDate = $('#EventDate').val().replace('-', '/');
+                        IteamInfo.EventEndDate = $('#EventEndDate').val().replace('-', '/');
+
+                        $.ajax({
+                            url: "@Url.Action("AssignItem", "Item")",
+                            contentType: "application/json",
+                        data: JSON.stringify({
+                            itemModel: IteamInfo
+                        }),
+                        type: 'Post',
+                        success: function (data) {
+                            $("#mainContainer").html(data);
+                            //$(".assignedTasksTable").mCustomScrollbar({ scrollInertia: 0, theme: "dark-thick" });
+                        },
+                        error: function (e, textStatus, jqXHR) {
+                            $.unblockUI();
+                        }
+                    });//end of inner ajax
+
+                    $.unblockUI();
+
+                    }
+                    else {
+                        alert(data.result);
+                    }
+                },
+                error: function (e, textStatus, jqXHR) {
+                    alert(e);
+                    $.unblockUI();
+                }
+            });
+        }
+        //else {
+        //        alert('Please select sub item to assign');
+        //}
+        }
+
+        function BacktoDashboard() {
+            //window.location = '/Dashboard/Index?ID=' + getParameterByName('Id'); //$("#EventId").val();
+            var dashboardURL = '@Url.Action("Index", "Item")';
+            //window.location = dashboardURL + "?ID=" + getParameterByName('Id');
+            window.location = dashboardURL + "?ID=" + $("#EventId").val() + "&ItemName=" + $("#ItemName").val() + "&Contract=" + $("#EventName").val() + "&IsBack=True";
+        }
+
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+        function EditItemDetails(itemId,EventId)
+        {
+            var IteamInfo = new Object();
+            IteamInfo.EventId = $("#EventId").val();
+            IteamInfo.ItemName = $("#ItemName").val();
+            IteamInfo.EventName = $("#EventName").val();
+            IteamInfo.Contract = $("#Contract").val();
+            IteamInfo.ProductionFrom = $('#ProductionFrom').val().replace('-', '/');
+            IteamInfo.ProductionTo = $('#ProductionTo').val().replace('-', '/');
+            IteamInfo.EventDate = $('#EventDate').val().replace('-', '/');
+            IteamInfo.EventEndDate = $('#EventEndDate').val().replace('-', '/');
+            var ItemList1 = [];
+            var SubItemsList1 = [];
+            var EditItemList1 = [];
+            var ed = new Object();
+            ed['Key'] = itemId;
+            ed['EventId'] = EventId;
+            EditItemList1.push(ed);
+
+            $('#divItems div input[type=checkbox]').each(function () {
+                //alert($(this).is(":checked"));
+                if ($(this).parent().parent().attr("id") == "Batched") {
+                    if ($(this).is(":checked")) {
+
+                        var temp = new Array();
+                        temp = $(this).parent().find(":hidden").attr('value').split(",");
+                        for (a in temp) {
+                            var tempInner = new Array();
+                            tempInner = temp[a].split("_");
+                            var o = new Object();
+                            var k = $(this).attr('value');
+                            o['Key'] = k;
+                            o['Value'] = $(this).parent().text();
+                            //o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                            //temp[a] = parseInt(temp[a], 10); // Explicitly include base as per Álvaro's comment                    
+                            //o['EventId'] = temp[a];
+                            o['EventId'] = tempInner[0];
+                            o['ContractId'] = tempInner[1];
+                            o['Quantity'] = tempInner[2];
+
+                            ItemList1.push(o);
+                        }
+
+                    }
+                }
+            });
+
+            $('#divSubItems div input[type=checkbox]').each(function () {
+                //alert($(this).is(":checked"));
+                var o = new Object();
+                var k = $(this).attr('value');
+                o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                o['SubItemId'] = k;
+                o['SubItemName'] = $(this).parent().text();
+                o['MainItemId'] = 0;
+                o['MainItemName'] = '';
+                SubItemsList1.push(o);
+            });
+
+
+            IteamInfo.ItemList = ItemList1;
+            IteamInfo.SubItemsList = SubItemsList1;
+            IteamInfo.EditItemList = EditItemList1;
+            IteamInfo.IsEdit = true;
+
+            if (ItemList1.length > 0) {
+
+                IteamInfo.ItemList = ItemList1;
+                $.blockUI();
+                $.ajax({
+                    url: "@Url.Action("AssignItem", "Item")",
+                    contentType: "application/json",
+                data: JSON.stringify({
+                    itemModel: IteamInfo
+                }),
+                type: 'Post',
+                success: function (data) {
+                    $("#mainContainer").html(data);
+                    $.unblockUI();
+                },
+                error: function (e, textStatus, jqXHR) {
+                    alert(e);
+                    $.unblockUI();
+                }
+            });
+        }
+        $('#divItems div input[type=checkbox]').each(function () {
+            //alert($(this).is(":checked"));
+            //alert($(this).attr('value'));
+            //alert(itemId);
+            if ($(this).attr('value') == itemId) {
+                $(this).attr("checked", true);
+            }
+            else {
+                $(this).attr("checked", false);
+            }
+
+        });
+        }
+        function Clear() {
+            $("#productionDatesList").empty();
+            $("#lstMembers").empty();
+            $('#divItems div input[type=checkbox]').each(function () {
+                //alert($(this).is(":checked"));
+                if ($(this).is(":checked")) {
+                    $(this).attr("checked", false);
+                }
+            });
+
+            $('#divSubItems div input[type=checkbox]').each(function () {
+                //alert($(this).is(":checked"));
+                if ($(this).is(":checked")) {
+                    $(this).attr("checked", false);
+                }
+            });
+
+        }
+        
+        function UnBatchItems()
+        {
+            var IteamInfo = new Object();
+            var ItemList1 = [];
+            var SubItemsList1 = [];
+            var productionList = [];
+            var MemberList1 = [];
+
+            $('#divItems div input[type=checkbox]').each(function () {
+                //alert($(this).is(":checked"));
+                //alert($(this).parent().parent().attr("id"));
+                if ($(this).parent().parent().attr("id") == "Batched") {
+                    if ($(this).is(":checked")) {
+
+                        var temp = new Array();
+                        temp = $(this).parent().find(":hidden").attr('value').split(",");
+                        
+                        for (a in temp) {
+                            var tempInner = new Array();
+                            tempInner = temp[a].split("_");
+                            
+                            var o = new Object();
+                            var k = $(this).attr('value');
+                            o['Key'] = k;
+                            o['Value'] = $(this).parent().text();
+                            //o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                            //temp[a] = parseInt(temp[a], 10); // Explicitly include base as per Álvaro's comment                    
+                            //o['EventId'] = temp[a];
+                            o['EventId'] = tempInner[0];
+                            o['ContractId'] = tempInner[1];
+                            o['Quantity'] = tempInner[2];
+                            o['BatchID'] = tempInner[3];
+                            ItemList1.push(o);
+                        }
+
+                    }
+                }
+                else if ($(this).parent().parent().attr("id") == "NotBatched") {
+                  
+                    var o = new Object();
+                    var k = $(this).attr('value');
+                    o['Key'] = k;
+                    o['Value'] = $(this).parent().text();
+                    o['EventId'] = $(this).attr('eventid'); //$(this).parent().find(":hidden").attr('value');
+                    o['ContractId'] = $(this).attr('contractid');
+                    o['Quantity'] = $(this).attr('quantity');
+                    o['BatchID'] = 0;
+                    //alert(o['ContractId']);
+                    //o['IsChecked'] = false;
+                    ItemList1.push(o);
+                }
+            });
+            if (ItemList1.length > 0) {
+                IteamInfo.ItemList = ItemList1;
+                IteamInfo.SubItemsList = SubItemsList1;
+                IteamInfo.ProductionDates = productionList;
+                IteamInfo.TeamMemberList = MemberList1;
+              
+
+                $.blockUI();
+                $.ajax({
+                    url: "@Url.Action("UnBatchItems", "Item")",
+                    contentType: "application/json",
+                data: JSON.stringify({
+                    itemModel: IteamInfo
+                }),
+                type: 'Post',
+                success: function (data) {
+                    //alert(data.result);
+                    if (data.result == "Success") {
+                        //$('#divItems div input[type=checkbox]').each(function () {
+                        //    var temp = new Array();
+                        //    ItemList1 = [];
+                        //    alert($(this).parent().parent().attr("id"));
+                        //    if ($(this).parent().parent().attr("id") == "Batched") {
+                        //        temp = $(this).parent().find(":hidden").attr('value').split(",");
+
+                        //        for (a in temp) {
+                        //            var tempInner = new Array();
+                        //            tempInner = temp[a].split("_");
+                        //            //alert($(this).attr('value'));
+                        //            var o = new Object();
+                        //            var k = $(this).attr('value');
+                        //            //var s = k.split('_');
+                        //            o['Key'] = k; //s[s.length - 1];
+                        //            //alert($(this).parent().text());
+                        //            o['Value'] = $(this).parent().text();
+                        //            //o['EventId'] = $(this).parent().find(":hidden").attr('value');
+                        //            //o['EventId'] = temp[a];
+                        //            o['EventId'] = tempInner[0];
+                        //            o['ContractId'] = tempInner[1];
+                        //            o['Quantity'] = tempInner[2];
+                        //            o['IsChecked'] = false;
+                        //            ItemList1.push(o);
+                        //        }
+                        //    }
+                           
+                        //});
+                        var itemModelObject = data.ItemModelList;
+                        IteamInfo.ItemList = itemModelObject;
+                        IteamInfo.ItemName = $("#ItemName").val();
+                        IteamInfo.EventName = $("#EventName").val();
+                        IteamInfo.ProductionFrom = $('#ProductionFrom').val().replace('-', '/');
+                        IteamInfo.ProductionTo = $('#ProductionTo').val().replace('-', '/');
+                        IteamInfo.EventDate = $('#EventDate').val().replace('-', '/');
+                        IteamInfo.EventEndDate = $('#EventEndDate').val().replace('-', '/');
+                        IteamInfo.IsBack = $("#IsBack").val();
+
+                            $.ajax({
+                                url: "@Url.Action("AssignItem", "Item")",
+                                contentType: "application/json",
+                            data: JSON.stringify({
+                                itemModel: IteamInfo
+                            }),
+                            type: 'Post',
+                            success: function (data) {
+                                //alert(data);
+                                //$(".contentContainer").html(data);
+                                //alert($(".contentContainer").parent().attr('id'));
+                                callbackfunctionforItems(data);
+                            },
+                            error: function (e, textStatus, jqXHR) {
+                            }
+                        });//end of Ajax
+
+                        $.unblockUI();
+                        
+                        
+                    }
+
+            else {
+                        alert(data.result);
+                $.unblockUI();
+            }
+        },
+        error: function (e, textStatus, jqXHR) {
+            alert(e);
+            $.unblockUI();
+        }
+        });
+        }
+        else {
+            alert('Please select item to Un-Btach');
+        }
+        }
+     
+        function UnBatchSubItems() {
+            var IteamInfo = new Object();
+            var ItemList1 = [];
+            var SubItemsList1 = [];
+            var productionList = [];
+            var MemberList1 = [];
+
+            IteamInfo.EventId = $("#EventId").val();
+            IteamInfo.ItemName = $("#ItemName").val();
+            IteamInfo.EventName = $("#EventName").val();
+            IteamInfo.ProductionFrom = $('#ProductionFrom').val().replace('-', '/');
+            IteamInfo.ProductionTo = $('#ProductionTo').val().replace('-', '/');
+            IteamInfo.EventDate = $('#EventDate').val().replace('-', '/');
+            IteamInfo.EventEndDate = $('#EventEndDate').val().replace('-', '/');
+
+
+            $('#divSubItems div input[type=checkbox]').each(function () {
+
+                var temp = new Array();
+                temp = $(this).parent().find(":hidden").attr('value').split(",");
+                for (a in temp) {
+                    var tempInner = new Array();
+                    tempInner = temp[a].split("_");
+
+                    var o = new Object();
+                    var k = $(this).attr('value');
+                    o['Key'] = k;
+                    o['Value'] = $(this).parent().text();
+                    o['EventId'] = tempInner[0];
+                    o['SubItemId'] = k;
+                    o['SubItemName'] = $(this).parent().text();
+                    o['MainItemId'] = 0;
+                    o['BatchID'] = tempInner[1];
+                    ItemList1.push(o);
+                }
+                //if ($(this).is(":checked")) {
+                //    var o = new Object();
+                //    var k = $(this).attr('value');
+                //    var temp = $(this).parent().find(":hidden").attr('value').split('_');
+                //    o['EventId'] = temp[0];
+                //    o['SubItemId'] = k;
+                //    o['SubItemName'] = $(this).parent().text();
+                //    o['MainItemId'] = 0;
+                //    o['MainItemName'] = '';
+
+                //    SubItemsList1.push(o);
+                //}
+            });
+
+
+
+
+            if (SubItemsList1.length > 0) {
+                IteamInfo.SubItemsList = SubItemsList1;
+                IteamInfo.ProductionDates = productionList;
+                IteamInfo.TeamMemberList = MemberList1;
+
+                $.blockUI();
+                $.ajax({
+                    url: "@Url.Action("UnBatchSubItems", "Item")",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        itemModel: IteamInfo
+                    }),
+                    type: 'Post',
+                    success: function (data) {
+                        if (data.result == "Success") {
+                            $.ajax({
+                                url: "@Url.Action("AssignItem", "Item")",
+                                contentType: "application/json",
+                                data: JSON.stringify({
+                                    itemModel: IteamInfo
+                                }),
+                                type: 'Post',
+                                success: function (data) {
+                                    $("#mainContainer").html(data);
+                                    //$(".assignedTasksTable").mCustomScrollbar({ scrollInertia: 0, theme: "dark-thick" });
+                                },
+                                error: function (e, textStatus, jqXHR) {
+                                    $.unblockUI();
+                                }
+                            });//end of inner ajax
+
+                            $.unblockUI();
+
+                        }
+                        else {
+                            alert(data.result);
+                        }
+                    },
+                    error: function (e, textStatus, jqXHR) {
+                        alert(e);
+                        $.unblockUI();
+                    }
+                });
+            }
+            else
+            {
+                alert('Please select item to Un-Batch');
+            }
+        }
+        //
+    </script>
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+    }

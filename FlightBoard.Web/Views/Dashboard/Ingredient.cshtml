@@ -1,0 +1,190 @@
+﻿@model IList<FlightBoard.Web.Models.IngredientsModel>
+@{
+    Layout = "";
+}
+@*<div class="headerWrapper userManage">
+        <h1>Ingredients</h1>
+    </div>
+    <table>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Prdname</td>
+                <td>@item.Qty</td>
+                <td>@item.Description</td>
+            </tr>
+        }
+    </table>*@
+
+<div class="popInner addBatch recipeDetailsPop">
+    <div class="recipeDetailsPopInner">
+        <h1>@ViewBag.ItemName</h1>
+        <div class="recipeProduction">
+            <table width="100%" cellspacing="0" cellpadding="0" border="0" >
+                <tbody>
+                    <tr>
+                        <td><span class="recipeProductionD">Production Recipe &amp; Date:</span></td>
+                        <td><span>NA</span></td>
+                    </tr>
+                    <tr>
+                        <td align="right"><span class="recipeProductionD">Production Shift:</span></td>
+                        <td align="left"><span>NA</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+    </div><div class="popclose"><a href="javascript:void(0)"></a></div>
+    <div id="boxscroll4" class="recipePreDetails" style="overflow: hidden;" tabindex="5000">
+        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+            <tbody>
+                <tr>
+                    <th scope="col"  >Times</th>
+                    <th scope="col">Temperatures</th>
+                    <th scope="col">Production Amount</th>
+                </tr>
+                <tr>
+                    <td>
+                        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+
+                            <tbody>
+                                <tr>
+                                    <td>Prep Time: <span class="darkTest recipeVal">NA</span></td>
+
+                                </tr>
+                                <tr>
+                                    <td>Cooking Time:<span class="darkTest  recipeVal">NA</span></td>
+
+                                </tr>
+
+
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>
+                        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+
+                            <tbody>
+                                <tr>
+                                    <td>Cooking: <span class="darkTest recipeVal">NA</span></td>
+
+                                </tr>
+                                <tr>
+                                    <td>Internal: <span class="darkTest recipeVal">NA</span></td>
+
+                                </tr>
+
+
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>
+                        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+
+                            <tbody>
+                                <tr>
+                                    <td>Yield: <span class="darkTest recipeVal">NA</span></td>
+
+                                </tr>
+                                <tr>
+                                    <td>Portions: <span class="darkTest recipeVal">NA</span></td>
+
+                                </tr>
+
+
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+        <h2>Ingredients &amp; Instructions</h2>
+        <table cellpadding="0" cellspacing="0" border="0" class="ingredientslist" width="100%">
+            @foreach (var item in Model)
+            {
+                var SubItemsmodel = item.SubItemsModel.Where(p => p.MainItemID == item.ComponentItemID).ToList();
+
+
+                if (SubItemsmodel.Count > 0)
+                {
+                    <tr>
+                        <td>
+                            <span class="ingredientMainList">@item.Prdname</span>
+
+                            <div class="ingredientSubList">
+                                <table cellpadding="0" cellspacing="0" border="0" class="ingredientsSublist" width="100%">
+                                    @foreach (var subItem in SubItemsmodel)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @subItem.SubDescription
+                                            </td>
+                                            <td>
+                                                @subItem.SubItemuofmCompoundtext
+                                            </td>
+
+                                        </tr>
+                                    }
+                                </table>
+
+                            </div>
+
+
+                        </td>
+                        <td>@item.ItemuofmCompoundtext</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>
+                            @item.Prdname
+                        </td>
+                        <td>
+                            @item.ItemuofmCompoundtext
+                        </td>
+                    </tr>
+                }
+
+            }
+        </table>
+
+        <div class="preparation">
+            <h3>Preparation</h3>
+            <ol>
+                <li>
+                    NA
+                </li>
+            </ol>
+        </div>
+    </div>
+
+
+</div>
+<script>
+    $(document).ready(function () {
+
+
+        // $("#boxscroll4").niceScroll({ touchbehavior: false, cursorcolor: "#00F", cursoropacitymax: 0.7, cursorwidth: 8, autohidemode: false });
+        // $("#boxscroll4").getNiceScroll().resize();
+    });
+    //$(window).resize(function () {
+    //    var winH = $(window).height();
+    //    var popHeight = $('.recipeDetailsPop').height();
+    //    var popHei = popHeight - 70;
+    //    var winHei = winH - 150;
+
+    //    if (popHeight < winHei) {
+
+    //        $('#boxscroll4').css('height', popHei)
+    //    }
+    //    else {
+
+    //        $('#boxscroll4').css('height', winHei)
+    //    }
+    //    $("#boxscroll4").getNiceScroll().resize();
+    //});
+
+</script>

@@ -1,0 +1,87 @@
+﻿@model FlightBoard.Web.Models.UserModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Edit";
+}
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.UserId)
+    @Html.HiddenFor(m => m.CreatedDate)
+    @Html.HiddenFor(m => m.IsActive)
+    @Html.HiddenFor(m => m.Password)
+    <div class="loginContainer">
+        <div class="loginForm userManageForm">
+            <ul>
+                <li class="backTO">@Html.ActionLink("<< Back to User Management", "Index")</li>
+                <li><h3>Edit User</h3></li>
+                <li>
+                    @Html.DropDownListFor(m => m.RoleId, Model.RolesList)
+                    @Html.ValidationMessageFor(model => model.RoleId)
+
+                    @Html.HiddenFor(model => model.Password)
+                </li>
+                <li>
+                    @Html.TextBoxFor(m => m.FirstName, new { @class = "textbox", @placeholder = "First Name", @maxlength = "50" })
+                    @Html.ValidationMessageFor(model => model.FirstName)
+                </li>
+                <li>
+                    @Html.TextBoxFor(m => m.LastName, new { @class = "textbox", @placeholder = "Last Name", @maxlength = "50" })
+                    @Html.ValidationMessageFor(model => model.LastName)
+                </li>
+                <li>
+                    @Html.TextBoxFor(m => m.SSN, new { @class = "textbox", @placeholder = "Last 4 Digits of SSN", @maxlength = "4"@*, @readonly = "readonly", @onkeypress = "return OnlyNumbers(event,this);", @onpaste = "return false;"*@ })
+                    @Html.ValidationMessageFor(model => model.SSN)
+                </li>
+                <li>
+                    @Html.TextBoxFor(m => m.UserName, new { @class = "textbox", @placeholder = "Email", @maxlength = "150", id = "txtUserName"@*, @readonly = "readonly"*@ })
+                    <span class="field-validation-error-display">This will be your username.</span>
+                    @Html.ValidationMessageFor(model => model.UserName)
+                </li>
+                <li><input name="" type="submit" class="button medium" value="Update" /> <input name="" type="reset" class="button medium" value="Reset" onclick="location.href='@Url.Action("Edit", "User", new { id = Model.UserId })'" /></li>
+            </ul>
+        </div>
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () { 
+        ManageControls($("#RoleId").val());
+        $("#RoleId").change(function () {
+            var selectedValue = $(this)[0].value;
+            ManageControls(selectedValue);
+        });
+
+    });
+    function ManageControls(selectedValue)
+    {
+        if (selectedValue == 2) {
+            $("#SSN").val('');
+            $("#SSN").attr("disabled", "disabled");
+            
+            $("#txtUserName").attr("disabled", "disabled");
+            $("#txtUserName").val('');
+            
+                    
+        }
+        else if (selectedValue == 3) {
+            $("#SSN").val('');
+            $("#SSN").attr("disabled", "disabled");
+           
+            $("#txtUserName").attr("disabled", "disabled");
+            $("#txtUserName").val('');
+            
+        }
+        else
+        {
+            $("#SSN").prop("disabled",false);
+            $("#txtUserName").prop("disabled",false);
+                  
+        }
+    }
+    </script>
+    }
+
+
